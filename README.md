@@ -1,2 +1,10 @@
 # Engineer
 Nie w4rto
+Server:
+npm install --save dotenv
+npm install express
+npm install mongoose
+npm install ws
+npm install mqtt --save
+npm install bcryptjs --save
+npm install jsonwebtoken
