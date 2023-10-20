@@ -8,3 +8,10 @@ npm install ws
 npm install mqtt --save
 npm install bcryptjs --save
 npm install jsonwebtoken
+
+
+
+
+
+Client:
+npm install react-router-dom axios classnames
