@@ -15,3 +15,7 @@ npm install jsonwebtoken
 
 Client:
 npm install react-router-dom axios classnames
+
+!!!!!
+npm i react-chartjs-2
+npm i chart.js
