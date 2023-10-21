@@ -27,7 +27,7 @@ ws.on("open", () => {
       },
     };
     ws.send(JSON.stringify(data));
-  }, 20000);
+  }, 5000);
 });
 
 ws.on("message", (data) => {

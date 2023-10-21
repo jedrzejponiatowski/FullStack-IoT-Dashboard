@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
-import DataChart from "./DataChart";
+//import DataChart from "./DataChart";
 import "./Sensor.css";
 import classNames from "classnames";
+import DataBar from "./DataBar";
 
 const Sensor = ({ sensorConfig, sensorData }) => {
   const [deviceStatus, setDeviceStatus] = useState("Offline");
@@ -66,7 +67,7 @@ const Sensor = ({ sensorConfig, sensorData }) => {
         </div>
       </div>
       <div className="sensor-chart">
-        <DataChart sensorData={sensorData} />
+        <DataBar sensorConfig={sensorConfig} sensorData={sensorData} />
       </div>
     </div>
   );

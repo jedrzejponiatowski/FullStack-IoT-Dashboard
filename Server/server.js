@@ -4,12 +4,10 @@ const connectDB = require("./configDB/configdb");
 const errorHandler = require("./middleware/error");
 const http = require("http");
 const WebSocket = require("ws");
+const mqtt = require("mqtt");
 
 const MQTT_BROKER_URL = "mqtt://test.mosquitto.org"; //
 const MQTT_TOPIC = "poniajed_sensor1";
-
-const mqtt = require('mqtt');
-mqttClient = mqtt.connect(MQTT_BROKER_URL);
 
 connectDB();
 
@@ -28,10 +26,9 @@ const wss = new WebSocket.Server({ server });
 
 CLIENTS = [];
 
-
 wss.on("connection", function connection(ws) {
   console.log("New Device Connected!");
-  
+
   ws.on("message", (data) => {
     console.log(data, typeof data);
     var jsonData = {};
@@ -46,13 +43,6 @@ wss.on("connection", function connection(ws) {
     if (jsonData.type === "CLIENT") {
       CLIENTS.push(ws);
     }
-    if (jsonData.type === "SENSOR") {
-      if (CLIENTS.length > 0) {
-        for (let i = 0; i < CLIENTS.length; i++) {
-          CLIENTS[i].send(JSON.stringify(jsonData.sensorData));
-        }
-      }
-    }
   });
 
   ws.on("close", () => {
@@ -60,26 +50,56 @@ wss.on("connection", function connection(ws) {
   });
 });
 
+const mqttClient = mqtt.connect(MQTT_BROKER_URL);
+
 mqttClient.on("connect", () => {
-    console.log("Connected to MQTT broker");
-  
-    mqttClient.subscribe(MQTT_TOPIC, (err) => {
-      if (!err) {
-        console.log(`Subscribed to MQTT topic: ${MQTT_TOPIC}`);
+  console.log("Connected to MQTT broker");
+
+  mqttClient.subscribe(MQTT_TOPIC, (err) => {
+    if (!err) {
+      console.log(`Subscribed to MQTT topic: ${MQTT_TOPIC}`);
+    }
+  });
+
+  mqttClient.on("message", (MQTT_TOPIC, message) => {
+    // Przetwarzanie otrzymanej wiadomości MQTT
+    try {
+      const sensorData = JSON.parse(message);
+
+      // Sprawdź, czy otrzymane dane są w odpowiednim formacie
+      if (
+        sensorData &&
+        sensorData.sensorType &&
+        sensorData.sensorStatus &&
+        sensorData.timestamp &&
+        sensorData.sensorValue
+      ) {
+        // Tworzenie odpowiedniej struktury danych dla WebSocket
+        const data = {
+          type: "SENSOR",
+          sensorData: {
+            sensorType: sensorData.sensorType,
+            sensorStatus: sensorData.sensorStatus,
+            timestamp: sensorData.timestamp,
+            sensorValue: sensorData.sensorValue,
+          },
+        };
+        console.log("wysylam dane na websocket")
+        console.log(JSON.stringify(data))
+        // Wysłanie danych do klientów WebSocket
+        for (const client of CLIENTS) {
+          client.send(JSON.stringify(data));
+        }
+      } else {
+        console.error("Otrzymane dane MQTT są w niepoprawnym formacie.");
       }
-    });
-  
-    mqttClient.on("message", (MQTT_TOPIC, message) => {
-      const sensorData = { type: "SENSOR", data: message.toString() };
-  
-      // Prześlij dane na WebSocket do klientów
-      CLIENTS.forEach((client) => {
-        client.send(JSON.stringify(sensorData));
-      });
-    });
+    } catch (error) {
+      console.error("Błąd przetwarzania wiadomości MQTT: " + error.message);
+    }
+  });
 });
 
-const PORT = process.env.PORT | 5000;
+const PORT = process.env.PORT || 5000;
 
 const serverListener = server.listen(PORT, () =>
   console.log(`Server running on port ${PORT}`)
@@ -89,3 +109,6 @@ process.on("unhandledRejection", (err, promise) => {
   console.log(`Logged Error: ${err}`);
   serverListener.close(() => process.exit(1));
 });
+
+
+//mosquitto_pub -h test.mosquitto.org -t "poniajed_sensor1" -m "{\"sensorType\":\"photoresistor\",\"sensorStatus\":\"Light\",\"timestamp\":1697879661431,\"sensorValue\":14}"

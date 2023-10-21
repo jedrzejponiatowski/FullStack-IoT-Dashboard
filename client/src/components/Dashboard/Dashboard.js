@@ -38,9 +38,10 @@ const Dashboard = () => {
       };
 
       ws.current.onmessage = ({ data }) => {
-        const messageText = data.toString(); // Konwersja bufora na tekst
+        const messageText = data; // Konwersja bufora na tekst
         console.log(messageText);
-        setSensorData(JSON.parse(data));
+        const parsedMessage = JSON.parse(messageText);
+        setSensorData(parsedMessage.sensorData);
       };
     };
 
