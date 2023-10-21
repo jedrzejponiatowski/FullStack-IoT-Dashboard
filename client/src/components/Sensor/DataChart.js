@@ -1,47 +1,8 @@
 import React, { Component } from 'react';
 import ReactApexChart from 'react-apexcharts';
 
-let lastDate = 0;
-let data = [];
-const TICKINTERVAL = 86400000;
-const XAXISRANGE = 777600000;
-
-function getDayWiseTimeSeries(baseval, count, yrange) {
-  let i = 0;
-  while (i < count) {
-    const x = baseval;
-    const y = Math.floor(Math.random() * (yrange.max - yrange.min + 1)) + yrange.min;
-
-    data.push({ x, y });
-    lastDate = baseval;
-    baseval += TICKINTERVAL;
-    i++;
-  }
-}
-
-getDayWiseTimeSeries(new Date('11 Feb 2017 GMT').getTime(), 10, {
-  min: 10,
-  max: 90
-});
-
-function getNewSeries(baseval, yrange) {
-  const newDate = baseval + TICKINTERVAL;
-  lastDate = newDate;
-
-  for (let i = 0; i < data.length - 10; i++) {
-    data[i].x = newDate - XAXISRANGE - TICKINTERVAL;
-    data[i].y = 0;
-  }
-
-  data.push({
-    x: newDate,
-    y: Math.floor(Math.random() * (yrange.max - yrange.min + 1)) + yrange.min
-  });
-}
-
-function resetData() {
-  data = data.slice(data.length - 10, data.length);
-}
+const TICKINTERVAL = 1000; // 1 sekunda
+const XAXISRANGE = 60000; // 60 sekund (1 minuta)
 
 class DataChart extends Component {
   constructor(props) {
@@ -50,7 +11,7 @@ class DataChart extends Component {
     this.state = {
       series: [
         {
-          data: data.slice()
+          data: []
         }
       ],
       options: {
@@ -90,7 +51,8 @@ class DataChart extends Component {
           range: XAXISRANGE
         },
         yaxis: {
-          max: 100
+          min: 0,
+          max: 10
         },
         legend: {
           show: false
@@ -100,35 +62,43 @@ class DataChart extends Component {
   }
 
   componentDidMount() {
-    window.setInterval(() => {
-      getNewSeries(lastDate, {
-        min: 10,
-        max: 90
-      });
+    const yrange = {
+      min: 0,
+      max: 10
+    };
+
+    const updateData = () => {
+      const newDate = new Date().getTime();
+      const newData = {
+        x: newDate,
+        y: Math.random() * (yrange.max - yrange.min) + yrange.min
+      };
+
+      const series = this.state.series[0].data;
+      const cutoff = newDate - XAXISRANGE;
+
+      const newSeries = series.filter((data) => data.x > cutoff);
+
+      // Dodaj nowe dane
+      newSeries.push(newData);
 
       this.setState({
         series: [
           {
-            data: data
+            data: newSeries
           }
         ]
       });
-    }, 1000);
+    };
 
-    window.setInterval(() => {
-      resetData();
-      this.setState(
-        {
-          series: [
-            {
-              data
-            }
-          ]
-        },
-        false,
-        true
-      );
-    }, 60000);
+    // Rozpocznij dodawanie danych co sekundę
+    updateData();
+    this.interval = setInterval(updateData, TICKINTERVAL);
+  }
+
+  componentWillUnmount() {
+    // Zatrzymaj interwał przed usunięciem komponentu
+    clearInterval(this.interval);
   }
 
   render() {
