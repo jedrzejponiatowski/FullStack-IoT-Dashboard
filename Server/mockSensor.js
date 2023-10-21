@@ -3,13 +3,13 @@ const WebSocket = require("ws");
 const ws = new WebSocket("ws://localhost:5000");
 
 function LDRValue() {
-  return Math.round(Math.random() * 100000);
+  return Math.floor(Math.random() * 11); // Generuje losową liczbę z zakresu 0-10
 }
 
 ws.on("open", () => {
   let sensorValue = 0;
   let sensorStatus = (sensorValue) => {
-    if (sensorValue < 50000) {
+    if (sensorValue < 5) {
       return "Light";
     } else {
       return "Dark";
@@ -27,13 +27,9 @@ ws.on("open", () => {
       },
     };
     ws.send(JSON.stringify(data));
-  }, 1000);
+  }, 20000);
 });
 
 ws.on("message", (data) => {
   console.log(data);
 });
-
-
-
-// {"sensorType":"photoresistor","sensorStatus":"Light","timestamp":1697879661431,"sensorValue":21840}

@@ -38,7 +38,7 @@ const Sensor = ({ sensorConfig, sensorData }) => {
       setSensorLastUpdated("Not Available");
     }
     var DataTimeCheck = setInterval(() => {
-      if (Date.now() - sensorData.timestamp > 2000) {
+      if (Date.now() - sensorData.timestamp > 60000) {
         setDeviceStatus("Offline");
         setIndicatorClass(classNames("indicator", "offline"));
         setSensorStatus("Not Available");
@@ -66,7 +66,7 @@ const Sensor = ({ sensorConfig, sensorData }) => {
         </div>
       </div>
       <div className="sensor-chart">
-        <DataChart config={sensorConfig.chart} sensorData={sensorData} />
+        <DataChart sensorData={sensorData} />
       </div>
     </div>
   );
