@@ -14,7 +14,7 @@ client.on("connect", () => {
   setInterval(() => {
     const data = `{"sensorType":"temperature", "sensorRef":${1}, "sensorStatus":"Dark", "timestamp":${Date.now()}, "sensorValue":${Math.floor(Math.random() * 50)}}`;
     client.publish(MQTT_TOPIC_TEMPERATURE, data);
-  }, 4000);
+  }, 9000);
 
 });
 

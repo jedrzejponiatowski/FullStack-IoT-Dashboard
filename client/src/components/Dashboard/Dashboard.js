@@ -4,7 +4,8 @@ import "./Dashboard.css";
 import { useNavigate } from 'react-router-dom';
 import Navbar from "../NavBar/NavBar";
 import { TemperatureConfig } from "./sensorConfigs";
-import Sensor from "../Sensor/Sensor";
+//import Sensor from "../Sensor/Sensor";
+import TemperatureSensor from "../Sensor/TemperatureSensor";
 
 const Dashboard = () => {
   const [error, setError] = useState("");
@@ -88,7 +89,7 @@ const Dashboard = () => {
     <>
       <Navbar />
       <div className="TemperatureData">
-        <Sensor sensorConfig={TemperatureConfig} sensorData={sensorData_temperature}/>
+        <TemperatureSensor sensorConfig={TemperatureConfig} sensorData={sensorData_temperature}/>
       </div>
     </>
   );
