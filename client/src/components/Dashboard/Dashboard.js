@@ -3,12 +3,12 @@ import axios from "axios";
 import "./Dashboard.css";
 import { useNavigate } from 'react-router-dom';
 import Navbar from "../NavBar/NavBar";
-import { LDRConfig } from "./sensorConfigs";
+import { TemperatureConfig } from "./sensorConfigs";
 import Sensor from "../Sensor/Sensor";
 
 const Dashboard = () => {
   const [error, setError] = useState("");
-  const [sensorData, setSensorData] = useState({});
+  const [sensorData_temperature, setSensorData_temperature] = useState({});
   const ws = useRef(null);
   const navigate = useNavigate();
 
@@ -39,9 +39,15 @@ const Dashboard = () => {
 
       ws.current.onmessage = ({ data }) => {
         const messageText = data; // Konwersja bufora na tekst
-        console.log(messageText);
+        //console.log(messageText);
         const parsedMessage = JSON.parse(messageText);
-        setSensorData(parsedMessage.sensorData);
+        switch (parsedMessage.sensorData.sensorType) {
+            case "temperature":
+              setSensorData_temperature(parsedMessage.sensorData);
+              break;
+            default:
+        }
+    
       };
     };
 
@@ -81,8 +87,8 @@ const Dashboard = () => {
   ) : (
     <>
       <Navbar />
-      <div className="data">
-        <Sensor sensorConfig={LDRConfig} sensorData={sensorData} />
+      <div className="TemperatureData">
+        <Sensor sensorConfig={TemperatureConfig} sensorData={sensorData_temperature}/>
       </div>
     </>
   );

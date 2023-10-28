@@ -1,35 +1,23 @@
-const WebSocket = require("ws");
+const mqtt = require("mqtt");
 
-const ws = new WebSocket("ws://localhost:5000");
+const MQTT_BROKER_URL = "mqtt://test.mosquitto.org";
+const MQTT_TOPIC_TEMPERATURE = "MQTT_topic::temperature";
 
-function LDRValue() {
-  return Math.floor(Math.random() * 11); // Generuje losową liczbę z zakresu 0-10
-}
+const client = mqtt.connect(MQTT_BROKER_URL);
 
-ws.on("open", () => {
-  let sensorValue = 0;
-  let sensorStatus = (sensorValue) => {
-    if (sensorValue < 5) {
-      return "Light";
-    } else {
-      return "Dark";
-    }
-  };
+client.on("connect", () => {
   setInterval(() => {
-    sensorValue = LDRValue();
-    const data = {
-      type: "SENSOR",
-      sensorData: {
-        sensorType: "photoresistor",
-        sensorStatus: sensorStatus(sensorValue),
-        timestamp: Date.now(),
-        sensorValue: sensorValue,
-      },
-    };
-    ws.send(JSON.stringify(data));
+    const data = `{"sensorType":"temperature", "sensorRef":${0}, "sensorStatus":"Light", "timestamp":${Date.now()}, "sensorValue":${Math.floor(Math.random() * 50)}}`;
+    client.publish(MQTT_TOPIC_TEMPERATURE, data);
   }, 5000);
+
+  setInterval(() => {
+    const data = `{"sensorType":"temperature", "sensorRef":${1}, "sensorStatus":"Dark", "timestamp":${Date.now()}, "sensorValue":${Math.floor(Math.random() * 50)}}`;
+    client.publish(MQTT_TOPIC_TEMPERATURE, data);
+  }, 4000);
+
 });
 
-ws.on("message", (data) => {
-  console.log(data);
+client.on("message", (topic, message) => {
+  console.log("Received message on topic:", topic, "Message:", message.toString());
 });

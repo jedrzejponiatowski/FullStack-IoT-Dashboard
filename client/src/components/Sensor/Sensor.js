@@ -1,74 +1,79 @@
 import React, { useEffect, useState } from "react";
-//import DataChart from "./DataChart";
 import "./Sensor.css";
-import classNames from "classnames";
 import DataBar from "./DataBar";
 
+const numberOfCharts = 2;
+
+const SensorInfo = {
+  deviceStatus: "Offline",
+  sensorStatus: "Not Available",
+  sensorLastUpdated: "Not Available",
+};
+
+const SensorParams = Array.from({ length: numberOfCharts }, () => ({
+  sensorInfo: { ...SensorInfo },
+  sensorData: {},
+}));
+
 const Sensor = ({ sensorConfig, sensorData }) => {
-  const [deviceStatus, setDeviceStatus] = useState("Offline");
-  const [indicatorClass, setIndicatorClass] = useState(
-    classNames("indicator", "offline")
+  const [isParameterListExpanded, setIsParameterListExpanded] = useState(
+    Array(numberOfCharts).fill(false)
   );
-  const [sensorStatus, setSensorStatus] = useState("Not Available");
-  const [sensorLastUpdated, setSensorLastUpdated] = useState("Not Available");
 
   useEffect(() => {
-    if (
-      sensorData.sensorType &&
-      sensorData.sensorType.toLowerCase() === sensorConfig.name.toLowerCase()
-    ) {
-      setDeviceStatus("Online");
-      setIndicatorClass(classNames("indicator", "online"));
-      if (sensorData.sensorStatus) {
-        setSensorStatus(sensorData.sensorStatus);
-      }
-      if (sensorData.timestamp) {
-        setSensorLastUpdated(
-          `${new Date(sensorData.timestamp).toDateString()} at ${new Date(
+    if (sensorData.sensorRef !== undefined && sensorData.sensorRef < numberOfCharts) {
+      const sensorToUpdate = sensorData.sensorRef;
+      SensorParams[sensorToUpdate].sensorData = sensorData;
+      if (
+        sensorData.sensorType &&
+        sensorData.sensorType.toLowerCase() === sensorConfig.name.toLowerCase()
+      ) {
+        SensorParams[sensorToUpdate].sensorInfo.deviceStatus = "Online";
+        if (sensorData.sensorStatus) {
+          SensorParams[sensorToUpdate].sensorInfo.sensorStatus = sensorData.sensorStatus;
+        }
+        if (sensorData.timestamp) {
+          SensorParams[sensorToUpdate].sensorInfo.sensorLastUpdated = `${new Date(
             sensorData.timestamp
-          )
+          ).toDateString()} at ${new Date(sensorData.timestamp)
             .toLocaleTimeString("en-IN")
             .replace("am", "AM")
-            .replace("pm", "PM")}`
-        );
+            .replace("pm", "PM")}`;
+        }
+      } else {
+        SensorParams[sensorToUpdate].sensorInfo.deviceStatus = "Offline";
+        SensorParams[sensorToUpdate].sensorInfo.sensorStatus = "Not Available";
+        SensorParams[sensorToUpdate].sensorInfo.sensorLastUpdated = "Not Available";
       }
-    } else {
-      setDeviceStatus("Offline");
-      setIndicatorClass(classNames("indicator", "offline"));
-      setSensorStatus("Not Available");
-      setSensorLastUpdated("Not Available");
     }
-    var DataTimeCheck = setInterval(() => {
-      if (Date.now() - sensorData.timestamp > 60000) {
-        setDeviceStatus("Offline");
-        setIndicatorClass(classNames("indicator", "offline"));
-        setSensorStatus("Not Available");
-      }
-    }, 1000);
-
-    return () => {
-      clearInterval(DataTimeCheck);
-    };
   }, [sensorData, sensorConfig]);
 
   return (
     <div className="sensor-container">
-      <div className="sensor-text">
-        <div className="sensor-text-heading">
-          <h2>{sensorConfig.name}</h2>
+      {SensorParams.map((sensorParam, index) => (
+        <div className="sensor-text" key={index}>
+          <div className="sensor-text-heading">
+            <h2 onClick={() => {
+              const expandedStates = [...isParameterListExpanded];
+              expandedStates[index] = !expandedStates[index];
+              setIsParameterListExpanded(expandedStates);
+            }}>
+              {sensorConfig.name} - Sensor {index + 1}
+              {isParameterListExpanded[index] ? " -" : " +"}
+            </h2>
+          </div>
+          {isParameterListExpanded[index] && (
+            <div className="sensor-text-content">
+              <p>Device Status: {sensorParam.sensorInfo.deviceStatus}</p>
+              <p>Sensor Status: {sensorParam.sensorInfo.sensorStatus}</p>
+              <p>Sensor Last Updated: {sensorParam.sensorInfo.sensorLastUpdated}</p>
+            </div>
+          )}
+          <div className="sensor-chart">
+            <DataBar sensorConfig={sensorConfig} sensorData={sensorParam.sensorData} />
+          </div>
         </div>
-        <div className="sensor-text-content">
-          <p>
-            Device Status: {deviceStatus}
-            <span className={indicatorClass}></span>
-          </p>
-          <p>Sensor Status: {sensorStatus}</p>
-          <p>Sensor Last Updated: {sensorLastUpdated}</p>
-        </div>
-      </div>
-      <div className="sensor-chart">
-        <DataBar sensorConfig={sensorConfig} sensorData={sensorData} />
-      </div>
+      ))}
     </div>
   );
 };

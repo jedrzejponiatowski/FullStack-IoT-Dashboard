@@ -19,7 +19,7 @@ class DataBar extends Component {
             borderRadius: 5,
             horizontal: true,
             dataLabels: {
-              max: 20 // Ograniczenie wartości na osi poziomej do 20
+              max: 50 // Ograniczenie wartości na osi poziomej do 50
             }
           }
         },
@@ -28,7 +28,7 @@ class DataBar extends Component {
         },
         xaxis: {
           categories: [name],
-          max: 20,
+          max: 50,
           min: 0
         },
       },
@@ -52,6 +52,7 @@ class DataBar extends Component {
   }
 
   render() {
+    //console.log("val: ", this.props.sensorData.sensorValue);
     return (
       <Chart options={this.state.options} series={this.state.series} type="bar" height={this.state.options.chart.height} />
     );

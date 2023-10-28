@@ -1,8 +1,8 @@
-export const LDRConfig = {
-  name: "Photoresistor",
+export const TemperatureConfig = {
+  name: "Temperature",
   chart: {
-    chartLabel: "LDR Data",
-    xlabelString: "Today's Time",
-    ylabelString: "LDR Value",
+    chartLabel: "Temperature data",
+    xlabelString: "Temp.",
+    ylabelString: "Temperature value",
   },
 };

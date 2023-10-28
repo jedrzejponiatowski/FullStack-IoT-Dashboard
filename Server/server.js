@@ -7,7 +7,7 @@ const WebSocket = require("ws");
 const mqtt = require("mqtt");
 
 const MQTT_BROKER_URL = "mqtt://test.mosquitto.org"; //
-const MQTT_TOPIC = "poniajed_sensor1";
+const MQTT_TOPIC_TEMPERATURE = "MQTT_topic::temperature";
 
 connectDB();
 
@@ -55,11 +55,13 @@ const mqttClient = mqtt.connect(MQTT_BROKER_URL);
 mqttClient.on("connect", () => {
   console.log("Connected to MQTT broker");
 
-  mqttClient.subscribe(MQTT_TOPIC, (err) => {
+  mqttClient.subscribe(MQTT_TOPIC_TEMPERATURE, (err) => {
     if (!err) {
-      console.log(`Subscribed to MQTT topic: ${MQTT_TOPIC}`);
+      console.log(`Subscribed to MQTT topic: ${MQTT_TOPIC_TEMPERATURE}`);
     }
   });
+
+
 
   mqttClient.on("message", (MQTT_TOPIC, message) => {
     // Przetwarzanie otrzymanej wiadomości MQTT
@@ -70,15 +72,17 @@ mqttClient.on("connect", () => {
       if (
         sensorData &&
         sensorData.sensorType &&
+        //sensorData.sensorRef &&
         sensorData.sensorStatus &&
         sensorData.timestamp &&
-        sensorData.sensorValue
+        (sensorData.sensorValue >=0)
       ) {
         // Tworzenie odpowiedniej struktury danych dla WebSocket
         const data = {
           type: "SENSOR",
           sensorData: {
             sensorType: sensorData.sensorType,
+            sensorRef: sensorData.sensorRef,
             sensorStatus: sensorData.sensorStatus,
             timestamp: sensorData.timestamp,
             sensorValue: sensorData.sensorValue,
@@ -92,6 +96,7 @@ mqttClient.on("connect", () => {
         }
       } else {
         console.error("Otrzymane dane MQTT są w niepoprawnym formacie.");
+        console.log(JSON.stringify(sensorData));
       }
     } catch (error) {
       console.error("Błąd przetwarzania wiadomości MQTT: " + error.message);
