@@ -14,4 +14,13 @@ export const HumidityConfig = {
       xlabelString: "Humidity",
       ylabelString: "Humidity value",
     },
-  };
+};
+
+export const PressureConfig = {
+    name: "Pressure",
+    chart: {
+      chartLabel: "Pressure data",
+      xlabelString: "Pressure",
+      ylabelString: "Pressure value",
+    },
+};

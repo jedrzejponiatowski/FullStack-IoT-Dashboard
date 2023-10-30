@@ -1,0 +1,18 @@
+.sensor-chart-radial {
+    margin: auto;
+    width: auto; /* Szerokość na 80% szerokości dostępnej przestrzeni */
+    height: auto; /* Wysokość na 80% wysokości dostępnej przestrzeni */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.sensor-chart-polar {
+    margin: auto;
+    width: auto; /* Szerokość na 80% szerokości dostępnej przestrzeni */
+    height: auto; /* Wysokość na 80% wysokości dostępnej przestrzeni */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+

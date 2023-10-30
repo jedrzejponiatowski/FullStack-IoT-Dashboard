@@ -39,8 +39,8 @@ class DataRadial extends Component {
           floating: true,
           fontSize: '16px',
           position: 'left',
-          offsetX: 160,
-          offsetY: 15,
+          offsetX: -50,
+          offsetY: 45,
           labels: {
             useSeriesColors: true,
           },

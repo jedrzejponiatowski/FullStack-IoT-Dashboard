@@ -1,13 +1,26 @@
 .TemperatureData {
-    max-width: 1200px;
-    margin: 100px auto;
-    padding: 0px 15px;
-    margin-top: 150px;
+    max-width: 1000px; /* Maksymalna szerokość elementu */
+    width: 100%; /* Szerokość na 100% szerokości dostępnej przestrzeni */
+    margin: 150px auto;
+    padding: 0 15px; /* Wypełnienie z lewej i prawej strony na 15px, a z góry i dołu na 0 */
+    /* Dodaj tutaj inne właściwości CSS według potrzeb */
   }
 
-.HumidityData {
-    max-width: 1200px;
-    margin: 100px auto;
-    padding: 0px 15px;
+  .HumidityData {
+    max-width: 1000px; /* Maksymalna szerokość elementu */
+    width: 100%; /* Szerokość na 100% szerokości dostępnej przestrzeni */
+    margin: 100px auto; /* Marginesy z góry i dołu na 100px, a z lewej i prawej na auto (centrowanie) */
+    padding: 0 15px; /* Wypełnienie z lewej i prawej strony na 15px, a z góry i dołu na 0 */
+    /* Dodaj tutaj inne właściwości CSS według potrzeb */
 }
+
+.PressureData {
+    max-width: 1000px; /* Maksymalna szerokość elementu */
+    width: 100%; /* Szerokość na 100% szerokości dostępnej przestrzeni */
+    margin: 100px auto; /* Marginesy z góry i dołu na 100px, a z lewej i prawej na auto (centrowanie) */
+    padding: 0 15px; /* Wypełnienie z lewej i prawej strony na 15px, a z góry i dołu na 0 */
+    /* Dodaj tutaj inne właściwości CSS według potrzeb */
+}
+
+
   

@@ -3,14 +3,16 @@ import axios from "axios";
 import "./Dashboard.css";
 import { useNavigate } from 'react-router-dom';
 import Navbar from "../NavBar/NavBar";
-import { TemperatureConfig, HumidityConfig} from "./sensorConfigs";
+import { TemperatureConfig, HumidityConfig, PressureConfig} from "./sensorConfigs";
 import TemperatureSensor from "../Sensor/TemperatureSensor";
 import HumiditySensor from "../Sensor/HumiditySensor";
+import PressureSensor from "../Sensor/PressureSensor";
 
 const Dashboard = () => {
   const [error, setError] = useState("");
   const [sensorData_temperature, setSensorData_temperature] = useState({});
   const [sensorData_humidity, setSensorData_humidity] = useState({});
+  const [sensorData_pressure, setSensorData_pressure] = useState({});
   const ws = useRef(null);
   const navigate = useNavigate();
 
@@ -49,6 +51,9 @@ const Dashboard = () => {
                 break;
             case "humidity":
                 setSensorData_humidity(parsedMessage.sensorData);
+                break;
+            case "pressure":
+                setSensorData_pressure(parsedMessage.sensorData);
                 break;
             default:
         }
@@ -91,12 +96,18 @@ const Dashboard = () => {
     <span className="error-message">{error}</span>
   ) : (
     <>
-      <Navbar />
+      <div className="Navbar">
+        <Navbar />
+      </div>
+      
       <div className="TemperatureData">
         <TemperatureSensor sensorConfig={TemperatureConfig} sensorData={sensorData_temperature}/>
       </div>
       <div className="HumidityData">
         <HumiditySensor sensorConfig={HumidityConfig} sensorData={sensorData_humidity}/>
+      </div>
+      <div className="PressureData">
+        <PressureSensor sensorConfig={PressureConfig} sensorData={sensorData_pressure}/>
       </div>
     </>
   );

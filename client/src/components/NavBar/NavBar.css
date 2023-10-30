@@ -1,12 +1,12 @@
 nav {
-  position: fixed;
-  width: 100%;
-  top: 0;
-  left: 0;
-  z-index: 99;
-  padding: 20px;
-  background-color: #023047;
-}
+    position: fixed;
+    width: 100%;
+    top: 0;
+    left: 0;
+    z-index: 99;
+    padding: 20px;
+    background-color: #023047;
+  }
 
 .nav-container {
   margin: auto;

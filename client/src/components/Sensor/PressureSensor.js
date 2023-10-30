@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from "react";
-import DataRadial from "./DataRadial";
+import DataPolarArea from "./DataPolarArea";
+import "./sensor.css"
 
 const numberOfCharts = 2;
 
-const HumiditySensor = ({ sensorConfig, sensorData }) => {
+const PressureSensor = ({ sensorConfig, sensorData }) => {
   const [sensorParams, setSensorParams] = useState(
     Array.from({ length: numberOfCharts }, () => ({
       sensorInfo: {
@@ -12,7 +13,7 @@ const HumiditySensor = ({ sensorConfig, sensorData }) => {
         sensorLastUpdated: "Not Available",
       },
       sensorData: {
-        sensorValue: 50,
+        sensorValue: 1110,
       },
     }))
   );
@@ -97,11 +98,11 @@ const HumiditySensor = ({ sensorConfig, sensorData }) => {
           )}
         </div>
       ))}
-      <div className="sensor-chart-radial">
-        <DataRadial sensorConfig={sensorConfig} sensorValues={getSensorValues(sensorParams)} />
+      <div className="sensor-chart-polar">
+        <DataPolarArea sensorConfig={sensorConfig} sensorValues={getSensorValues(sensorParams)} />
       </div>
     </div>
   );
 };
 
-export default HumiditySensor;
+export default PressureSensor;
