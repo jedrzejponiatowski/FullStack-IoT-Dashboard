@@ -41,6 +41,33 @@ const TemperatureSensor = ({ sensorConfig, sensorData }) => {
         return updatedParams;
       });
     }
+    
+    var DataTimeCheck = setInterval(() => {
+        setSensorParams((prevParams) => {
+          const updatedParams = [...prevParams];
+          updatedParams.forEach((param, index) => {
+            if (param.sensorInfo.deviceStatus === "Online" && param.sensorData.timestamp) {
+              const currentTime = Date.now();
+              const timeDifference = currentTime - param.sensorData.timestamp;
+              if (timeDifference > 10000) {
+                updatedParams[index] = {
+                  ...param,
+                  sensorInfo: {
+                    ...param.sensorInfo,
+                    deviceStatus: "Offline",
+                    sensorStatus: "Not Available",
+                  },
+                };
+              }
+            }
+          });
+          return updatedParams;
+        });
+      }, 15000);
+  
+    return () => {
+        clearInterval(DataTimeCheck);
+    };
   }, [sensorData, sensorConfig]);
 
   const getSensorValues = (sensorParams) => {
