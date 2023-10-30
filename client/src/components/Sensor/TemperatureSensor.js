@@ -5,28 +5,20 @@ import DataBar from "./DataBar";
 
 const numberOfBars = 2;
 
-const getSensorValues = (SensorParams) => {
-  return SensorParams.map((sensorParam) => sensorParam.sensorData.sensorValue);
-};
-
-const getSensorLabels = (SensorParams) => {
-    return SensorParams.map((sensorParam) => sensorParam.sensorData.sensorType + sensorParam.sensorData.sensorRef);
-};
-
-const SensorInfo = {
-  deviceStatus: "Offline",
-  sensorStatus: "Not Available",
-  sensorLastUpdated: "Not Available",
-};
-
-const SensorParams = Array.from({ length: numberOfBars }, () => ({
-  sensorInfo: { ...SensorInfo },
-  sensorData: {
-    sensorValue: 0,
-  },
-}));
-
 const TemperatureSensor = ({ sensorConfig, sensorData }) => {
+  const [sensorParams, setSensorParams] = useState(
+    Array.from({ length: numberOfBars }, () => ({
+      sensorInfo: {
+        deviceStatus: "Offline",
+        sensorStatus: "Not Available",
+        sensorLastUpdated: "Not Available",
+      },
+      sensorData: {
+        sensorValue: 0,
+      },
+    }))
+  );
+
   const [isParameterListExpanded, setIsParameterListExpanded] = useState(
     Array(numberOfBars).fill(false)
   );
@@ -34,35 +26,34 @@ const TemperatureSensor = ({ sensorConfig, sensorData }) => {
   useEffect(() => {
     if (sensorData.sensorRef !== undefined && sensorData.sensorRef < numberOfBars) {
       const sensorToUpdate = sensorData.sensorRef;
-      SensorParams[sensorToUpdate].sensorData = sensorData;
-      if (
-        sensorData.sensorType &&
-        sensorData.sensorType.toLowerCase() === sensorConfig.name.toLowerCase()
-      ) {
-        SensorParams[sensorToUpdate].sensorInfo.deviceStatus = "Online";
-        if (sensorData.sensorStatus) {
-          SensorParams[sensorToUpdate].sensorInfo.sensorStatus = sensorData.sensorStatus;
-        }
-        if (sensorData.timestamp) {
-          SensorParams[sensorToUpdate].sensorInfo.sensorLastUpdated = `${new Date(
-            sensorData.timestamp
-          ).toDateString()} at ${new Date(sensorData.timestamp)
-            .toLocaleTimeString("en-IN")
-            .replace("am", "AM")
-            .replace("pm", "PM")}`;
-        }
-      } else {
-        SensorParams[sensorToUpdate].sensorInfo.deviceStatus = "Offline";
-        SensorParams[sensorToUpdate].sensorInfo.sensorStatus = "Not Available";
-        SensorParams[sensorToUpdate].sensorInfo.sensorLastUpdated = "Not Available";
-      }
+      setSensorParams((prevParams) => {
+        const updatedParams = [...prevParams];
+        updatedParams[sensorToUpdate] = {
+          sensorInfo: {
+            deviceStatus: "Online",
+            sensorStatus: sensorData.sensorStatus || "Not Available",
+            sensorLastUpdated: sensorData.timestamp
+              ? `${new Date(sensorData.timestamp).toDateString()} at ${new Date(sensorData.timestamp).toLocaleTimeString("en-IN").replace("am", "AM").replace("pm", "PM")}`
+              : "Not Available",
+          },
+          sensorData,
+        };
+        return updatedParams;
+      });
     }
-    //console.log(getSensorValues(SensorParams));
   }, [sensorData, sensorConfig]);
+
+  const getSensorValues = (sensorParams) => {
+    return sensorParams.map((sensorParam) => sensorParam.sensorData.sensorValue);
+  };
+
+  const getSensorLabels = (sensorParams) => {
+    return sensorParams.map((sensorParam) => sensorParam.sensorData.sensorType + sensorParam.sensorData.sensorRef);
+  };
 
   return (
     <div className="sensor-container">
-      {SensorParams.map((sensorParam, index) => (
+      {sensorParams.map((sensorParam, index) => (
         <div className="sensor-text" key={index}>
           <div className="sensor-text-heading">
             <h2
@@ -86,7 +77,7 @@ const TemperatureSensor = ({ sensorConfig, sensorData }) => {
         </div>
       ))}
       <div className="sensor-chart">
-        <DataBar sensorConfig={sensorConfig} sensorLabels={getSensorLabels(SensorParams)} sensorValues={getSensorValues(SensorParams)} />
+        <DataBar sensorConfig={sensorConfig} sensorLabels={getSensorLabels(sensorParams)} sensorValues={getSensorValues(sensorParams)} />
       </div>
     </div>
   );
