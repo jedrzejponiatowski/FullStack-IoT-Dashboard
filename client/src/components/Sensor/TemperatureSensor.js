@@ -98,7 +98,7 @@ const TemperatureSensor = ({ sensorConfig, sensorData }) => {
           )}
         </div>
       ))}
-      <div className="sensor-chart-bar">
+      <div className="sensor-chart">
         <DataBar sensorConfig={sensorConfig} sensorValues={getSensorValues(sensorParams)} />
       </div>
     </div>
