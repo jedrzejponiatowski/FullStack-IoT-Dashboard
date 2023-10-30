@@ -1,10 +1,9 @@
 import React, { useEffect, useState } from "react";
-import "./DataBar.css";
-import DataBar from "./DataBar";
+import DataRadial from "./DataRadial";
 
 const numberOfCharts = 2;
 
-const TemperatureSensor = ({ sensorConfig, sensorData }) => {
+const HumiditySensor = ({ sensorConfig, sensorData }) => {
   const [sensorParams, setSensorParams] = useState(
     Array.from({ length: numberOfCharts }, () => ({
       sensorInfo: {
@@ -13,7 +12,7 @@ const TemperatureSensor = ({ sensorConfig, sensorData }) => {
         sensorLastUpdated: "Not Available",
       },
       sensorData: {
-        sensorValue: 0,
+        sensorValue: 50,
       },
     }))
   );
@@ -74,7 +73,8 @@ const TemperatureSensor = ({ sensorConfig, sensorData }) => {
   };
 
   const getSensorLabels = (sensorParams) => {
-    return sensorParams.map((sensorParam) => sensorParam.sensorData.sensorType + sensorParam.sensorData.sensorRef);
+    //return sensorParams.map((sensorParam) => sensorParam.sensorData.sensorType + sensorParam.sensorData.sensorRef);
+    return ["aa", "bb"];
   };
 
   return (
@@ -103,10 +103,10 @@ const TemperatureSensor = ({ sensorConfig, sensorData }) => {
         </div>
       ))}
       <div className="sensor-chart">
-        <DataBar sensorConfig={sensorConfig} sensorLabels={getSensorLabels(sensorParams)} sensorValues={getSensorValues(sensorParams)} />
+        <DataRadial />
       </div>
     </div>
   );
 };
 
-export default TemperatureSensor;
+export default HumiditySensor;

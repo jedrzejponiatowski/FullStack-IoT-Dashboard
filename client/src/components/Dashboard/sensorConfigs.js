@@ -6,3 +6,12 @@ export const TemperatureConfig = {
     ylabelString: "Temperature value",
   },
 };
+
+export const HumidityConfig = {
+    name: "Humidity",
+    chart: {
+      chartLabel: "Humidity data",
+      xlabelString: "Humidity",
+      ylabelString: "Humidity value",
+    },
+  };
