@@ -72,11 +72,6 @@ const HumiditySensor = ({ sensorConfig, sensorData }) => {
     return sensorParams.map((sensorParam) => sensorParam.sensorData.sensorValue);
   };
 
-  const getSensorLabels = (sensorParams) => {
-    //return sensorParams.map((sensorParam) => sensorParam.sensorData.sensorType + sensorParam.sensorData.sensorRef);
-    return ["aa", "bb"];
-  };
-
   return (
     <div className="sensor-container">
       {sensorParams.map((sensorParam, index) => (
@@ -103,7 +98,7 @@ const HumiditySensor = ({ sensorConfig, sensorData }) => {
         </div>
       ))}
       <div className="sensor-chart">
-        <DataRadial />
+        <DataRadial sensorConfig={sensorConfig} sensorValues={getSensorValues(sensorParams)} />
       </div>
     </div>
   );

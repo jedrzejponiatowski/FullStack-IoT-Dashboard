@@ -73,10 +73,6 @@ const TemperatureSensor = ({ sensorConfig, sensorData }) => {
     return sensorParams.map((sensorParam) => sensorParam.sensorData.sensorValue);
   };
 
-  const getSensorLabels = (sensorParams) => {
-    return sensorParams.map((sensorParam) => sensorParam.sensorData.sensorType + sensorParam.sensorData.sensorRef);
-  };
-
   return (
     <div className="sensor-container">
       {sensorParams.map((sensorParam, index) => (
@@ -103,7 +99,7 @@ const TemperatureSensor = ({ sensorConfig, sensorData }) => {
         </div>
       ))}
       <div className="sensor-chart">
-        <DataBar sensorConfig={sensorConfig} sensorLabels={getSensorLabels(sensorParams)} sensorValues={getSensorValues(sensorParams)} />
+        <DataBar sensorConfig={sensorConfig} sensorValues={getSensorValues(sensorParams)} />
       </div>
     </div>
   );

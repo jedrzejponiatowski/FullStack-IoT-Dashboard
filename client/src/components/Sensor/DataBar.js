@@ -55,6 +55,7 @@ class DataBar extends Component {
     }
   }
 
+  
   render() {
     return (
       <Chart
