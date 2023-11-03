@@ -23,10 +23,10 @@ class DataPolarArea extends Component {
           legend: {
             show: true,
             floating: true,
-            fontSize: '16px',
+            fontSize: '15px',
             position: 'left',
-            offsetX: 300,
-            offsetY: 0,
+            offsetX: -30,
+            offsetY: -20,
             labels: {
               useSeriesColors: true,
             },

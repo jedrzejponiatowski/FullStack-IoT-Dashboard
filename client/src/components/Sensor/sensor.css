@@ -1,3 +1,43 @@
+  .sensor-container {
+    padding: 10px;
+    margin: 10px;
+  }
+  
+  .sensor-text {
+    margin: 10px;
+    font-size: 12px; /* Rozmiar czcionki */
+    font-family: Arial, sans-serif; /* Rodzina czcionek */
+    color: #333; /* Kolor tekstu */
+    text-align: left; /* Wyjustowanie tekstu (left, center, right) */
+    line-height: 1.5; /* Interlinia (odstęp między wierszami) */
+    /* Inne właściwości CSS dotyczące formatowania tekstu */
+  }
+  
+  .sensor-text-heading {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+  }
+  
+  .sensor-text-heading h2 {
+    margin: 0;
+    padding: 0;
+  }
+  
+  .sensor-text-content {
+    margin-top: 10px;
+  }
+  
+  .sensor-text-content p {
+    margin: 0;
+    padding: 0;
+  }
+  
+  .sensor-chart-databar {
+    margin-top: 20px;
+  }
+
 .sensor-chart-radial {
     margin: auto;
     width: auto; /* Szerokość na 80% szerokości dostępnej przestrzeni */
@@ -9,9 +49,8 @@
 
 .sensor-chart-polar {
     margin: auto;
-    width: auto; /* Szerokość na 80% szerokości dostępnej przestrzeni */
-    height: auto; /* Wysokość na 80% wysokości dostępnej przestrzeni */
-    display: flex;
+    width: 400px; /* Szerokość na 80% szerokości dostępnej przestrzeni */
+    height: 400px; /* Wysokość na 80% wysokości dostępnej przestrzeni */
     justify-content: center;
     align-items: center;
 }

@@ -8,7 +8,7 @@ class DataRadial extends Component {
     this.state = {
       options: {
         chart: {
-          height: 390,
+          height: 325,
           type: 'radialBar',
         },
         plotOptions: {
@@ -18,7 +18,7 @@ class DataRadial extends Component {
             endAngle: 270,
             hollow: {
               margin: 5,
-              size: '30%',
+              size: '50%',
               background: 'transparent',
               image: undefined,
             },
@@ -51,7 +51,7 @@ class DataRadial extends Component {
             return seriesName + ":  " + opts.w.globals.series[opts.seriesIndex];
           },
           itemMargin: {
-            vertical: 3,
+            vertical: 2,
           },
         },
         responsive: [

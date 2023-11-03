@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import "./DataBar.css";
 import DataBar from "./DataBar";
 
 const numberOfCharts = 2;
@@ -98,7 +97,7 @@ const TemperatureSensor = ({ sensorConfig, sensorData }) => {
           )}
         </div>
       ))}
-      <div className="sensor-chart">
+      <div className="sensor-chart-databar">
         <DataBar sensorConfig={sensorConfig} sensorValues={getSensorValues(sensorParams)} />
       </div>
     </div>
