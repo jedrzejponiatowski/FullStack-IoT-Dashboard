@@ -24,3 +24,12 @@ export const PressureConfig = {
       ylabelString: "Pressure value",
     },
 };
+
+export const LuminousConfig = {
+    name: "Pressure",
+    chart: {
+      chartLabel: "Pressure data",
+      xlabelString: "Pressure",
+      ylabelString: "Pressure value",
+    },
+};

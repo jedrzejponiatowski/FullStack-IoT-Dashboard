@@ -57,31 +57,26 @@ const DataChart = ({ sensorData }) => {
   };
 
   useEffect(() => {
-    const updateData = () => {
-      const newData = {
-        x: sensorData.timestamp, // Użyj timestamp z sensorData
-        y: sensorData.sensorValue
-      };
-  
-      const currentSeries = series[0].data;
-      const cutoff = sensorData.timestamp - XAXISRANGE; // Zmiana newDate na sensorData.timestamp
-  
+    const newData = {
+      x: sensorData.timestamp,
+      y: sensorData.sensorValue
+    };
+
+    setSeries((prevSeries) => {
+      const currentSeries = prevSeries[0].data;
+      const cutoff = sensorData.timestamp - XAXISRANGE;
+
       const newSeries = currentSeries.filter((data) => data.x > cutoff);
       newSeries.push(newData);
-  
-      setSeries([
+
+      return [
         {
           data: newSeries
         }
-      ]);
-    };
+      ];
+    });
+  }, [sensorData]);
   
-    updateData(); // Wywołaj updateData po raz pierwszy
-    //const interval = setInterval(updateData, TICKINTERVAL);
-  
-  }, [sensorData, series]);
-  
-
   return (
     <div id="chart">
       <ReactApexChart options={options} series={series} type="line" height={350} />

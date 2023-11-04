@@ -3,16 +3,18 @@ import axios from "axios";
 import "./Dashboard.css";
 import { useNavigate } from 'react-router-dom';
 import Navbar from "../NavBar/NavBar";
-import { TemperatureConfig, HumidityConfig, PressureConfig} from "./sensorConfigs";
+import { TemperatureConfig, HumidityConfig, PressureConfig, LuminousConfig} from "./sensorConfigs";
 import TemperatureSensor from "../Sensor/TemperatureSensor";
 import HumiditySensor from "../Sensor/HumiditySensor";
 import PressureSensor from "../Sensor/PressureSensor";
+import LuminousSensor from "../Sensor/LuminousSensor";
 
 const Dashboard = () => {
   const [error, setError] = useState("");
   const [sensorData_temperature, setSensorData_temperature] = useState({});
   const [sensorData_humidity, setSensorData_humidity] = useState({});
   const [sensorData_pressure, setSensorData_pressure] = useState({});
+  const [sensorData_luminous, setSensorData_luminous] = useState({});
   const ws = useRef(null);
   const navigate = useNavigate();
 
@@ -43,7 +45,7 @@ const Dashboard = () => {
 
       ws.current.onmessage = ({ data }) => {
         const messageText = data; // Konwersja bufora na tekst
-        //console.log(messageText);
+        console.log(messageText);
         const parsedMessage = JSON.parse(messageText);
         switch (parsedMessage.sensorData.sensorType) {
             case "temperature":
@@ -54,6 +56,9 @@ const Dashboard = () => {
                 break;
             case "pressure":
                 setSensorData_pressure(parsedMessage.sensorData);
+                break;
+            case "luminous":
+                setSensorData_luminous(parsedMessage.sensorData);
                 break;
             default:
         }
@@ -108,6 +113,9 @@ const Dashboard = () => {
       </div>
       <div className="PressureData">
         <PressureSensor sensorConfig={PressureConfig} sensorData={sensorData_pressure}/>
+      </div>
+      <div className="LuminousData">
+        <LuminousSensor sensorConfig={LuminousConfig} sensorData={sensorData_luminous}/>
       </div>
     </>
   );
