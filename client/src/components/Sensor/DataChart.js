@@ -1,87 +1,103 @@
-import React, { useState, useEffect } from 'react';
+import React, { Component } from 'react';
 import ReactApexChart from 'react-apexcharts';
 
-//const TICKINTERVAL = 10000; // 1 sekunda
 const XAXISRANGE = 600000; // 60 sekund (1 minuta)
 
-const DataChart = ({ sensorData }) => {
-  const [series, setSeries] = useState([
-    {
-      data: []
-    }
-  ]);
+class DataChart extends Component {
+  constructor(props) {
+    super(props);
 
-  const options = {
-    chart: {
-      id: 'realtime',
-      height: 350,
-      type: 'line',
-      animations: {
-        enabled: true,
-        easing: 'linear',
-        dynamicAnimation: {
-          speed: 1000
+    this.state = {
+      series: [
+        {
+          data: []
         }
-      },
-      toolbar: {
-        show: false
-      },
-      zoom: {
-        enabled: false
+      ],
+      options: {
+        chart: {
+          id: 'realtime',
+          height: 350,
+          type: 'line',
+          animations: {
+            enabled: true,
+            easing: 'linear',
+            dynamicAnimation: {
+              speed: 1000
+            }
+          },
+          toolbar: {
+            show: false
+          },
+          zoom: {
+            enabled: false
+          }
+        },
+        dataLabels: {
+          enabled: false
+        },
+        stroke: {
+          curve: 'smooth'
+        },
+        title: {
+          text: 'Dynamic Updating Chart',
+          align: 'left'
+        },
+        markers: {
+          size: 0
+        },
+        xaxis: {
+          type: 'datetime',
+          range: XAXISRANGE
+        },
+        yaxis: {
+          min: 0,
+          max: 10
+        },
+        legend: {
+          show: false
+        }
       }
-    },
-    dataLabels: {
-      enabled: false
-    },
-    stroke: {
-      curve: 'smooth'
-    },
-    title: {
-      text: 'Dynamic Updating Chart',
-      align: 'left'
-    },
-    markers: {
-      size: 0
-    },
-    xaxis: {
-      type: 'datetime',
-      range: XAXISRANGE
-    },
-    yaxis: {
-      min: 0,
-      max: 10
-    },
-    legend: {
-      show: false
-    }
-  };
-
-  useEffect(() => {
-    const newData = {
-      x: sensorData.timestamp,
-      y: sensorData.sensorValue
     };
+  }
 
-    setSeries((prevSeries) => {
-      const currentSeries = prevSeries[0].data;
-      const cutoff = sensorData.timestamp - XAXISRANGE;
+  componentDidUpdate(prevProps) {
+    if (
+      this.props.sensorData.timestamp !== prevProps.sensorData.timestamp ||
+      this.props.sensorData.sensorValue !== prevProps.sensorData.sensorValue
+    ) {
+      const newData = {
+        x: this.props.sensorData.timestamp,
+        y: this.props.sensorData.sensorValue
+      };
+
+      const currentSeries = this.state.series[0].data;
+      const cutoff = this.props.sensorData.timestamp - XAXISRANGE;
 
       const newSeries = currentSeries.filter((data) => data.x > cutoff);
       newSeries.push(newData);
 
-      return [
-        {
-          data: newSeries
-        }
-      ];
-    });
-  }, [sensorData]);
-  
-  return (
-    <div id="chart">
-      <ReactApexChart options={options} series={series} type="line" height={350} />
-    </div>
-  );
-};
+      this.setState({
+        series: [
+          {
+            data: newSeries
+          }
+        ]
+      });
+    }
+  }
+
+  render() {
+    return (
+      <div id="chart">
+        <ReactApexChart
+          options={this.state.options}
+          series={this.state.series}
+          type="line"
+          height={this.state.options.chart.height}
+        />
+      </div>
+    );
+  }
+}
 
 export default DataChart;
