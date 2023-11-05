@@ -46,6 +46,7 @@ void app_main(void)
         .m_type = BME280_READINGS,
         .m_interface = 
         {
+            .sensor_ref = BME280_DNG_11803,
             .sensor_init = inter_bme280_init_,
             .sensor_delete = inter_bme280_delete,
             .sensor_read = inter_bme280_read

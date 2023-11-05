@@ -13,7 +13,7 @@ static void log_error_if_nonzero(const char *message, int error_code)
     }
 }
 
-static void parse_and_send(shd_mem_t* shd_ptr);
+static void parse_and_send(shd_mem_t* shd_ptr, measurement_args_t* args);
 
 /*
  * @brief Event handler registered to receive MQTT events
@@ -123,22 +123,32 @@ void mqtt_task(void* pvParam)
     while(1)
     {
         shd_mem_read(args->m_shd_mem, ALL_MEASUREMENTS, outbuff);
-        parse_and_send(outbuff);
+        parse_and_send(outbuff, args);
 
-        vTaskDelay(2000 / portTICK_PERIOD_MS);
+        vTaskDelay(4000 / portTICK_PERIOD_MS);
     }
 }
 
 
-static void parse_and_send(shd_mem_t* shd_ptr)
+static void parse_and_send(shd_mem_t* shd_ptr, measurement_args_t* args)
 {
     char msg[150];
+    sprintf(msg, "temperature,%d,Light,1697879661431,%d", args->m_interface.sensor_ref, (int)shd_ptr->bme280_val.temperature_C);
+    mqtt_publish(MQTT_TOPIC, msg);
+    puts(msg);
+    //memset(msg,"");
+    sprintf(msg, "humidity,%d,Light,1697879661431,%d", args->m_interface.sensor_ref, (int)shd_ptr->bme280_val.humidity);
+    mqtt_publish(MQTT_TOPIC, msg);
+    puts(msg);
+    sprintf(msg, "pressure,%d,Light,1697879661431,%d", args->m_interface.sensor_ref, (int)shd_ptr->bme280_val.pressure_hPa);
+    mqtt_publish(MQTT_TOPIC, msg);
+    puts(msg);
     //extern char* hostname;
-    sprintf(msg, "{\"ID\":\"%s\",\"SENSOR\":\"%s\",\"DATA\":[{\"TEMP\":%.2f},{\"HUMID\":%.2f},{\"PRESS\":%.2f}]}", 
-    macAddress, GENERATE_STRING(BME280), shd_ptr->bme280_val.temperature_C, shd_ptr->bme280_val.humidity, shd_ptr->bme280_val.pressure_hPa);
+    //sprintf(msg, "{\"ID\":\"%s\",\"SENSOR\":\"%s\",\"DATA\":[{\"TEMP\":%.2f},{\"HUMID\":%.2f},{\"PRESS\":%.2f}]}", 
+    //macAddress, GENERATE_STRING(BME280), shd_ptr->bme280_val.temperature_C, shd_ptr->bme280_val.humidity, shd_ptr->bme280_val.pressure_hPa);
     //sprintf(msg, "{\"ID\":\"%s\", \"SENSOR\":\"%s\", \"DATA\":[{\"LUX\":%u}]}", 
     //macAddress, GENERATE_STRING(BH1750), shd_ptr->bh1750_val);
-    puts(msg);
+    
 
-    mqtt_publish(MQTT_TOPIC, msg);     
+         
 }
