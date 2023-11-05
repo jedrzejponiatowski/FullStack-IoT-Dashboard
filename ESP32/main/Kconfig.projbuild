@@ -1,0 +1,84 @@
+menu "Example Configuration"
+
+    config ESP_WIFI_SSID
+        string "WiFi SSID"
+        default "multimedia_annade"
+        help
+            SSID (network name) for the example to connect to.
+
+    config ESP_WIFI_PASSWORD
+        string "WiFi Password"
+        default "kokoszka7"
+        help
+            WiFi password (WPA or WPA2) for the example to use.
+
+    config ESP_MAXIMUM_RETRY
+        int "Maximum retry"
+        default 5
+        help
+            Set the Maximum retry to avoid station reconnecting to the AP unlimited when the AP is really inexistent.
+
+    choice ESP_WIFI_SCAN_AUTH_MODE_THRESHOLD
+        prompt "WiFi Scan auth mode threshold"
+        default ESP_WIFI_AUTH_OPEN
+        help
+            The weakest authmode to accept in the scan mode.
+
+        config ESP_WIFI_AUTH_OPEN
+            bool "OPEN"
+        config ESP_WIFI_AUTH_WEP
+            bool "WEP"
+        config ESP_WIFI_AUTH_WPA_PSK
+            bool "WPA PSK"
+        config ESP_WIFI_AUTH_WPA2_PSK
+            bool "WPA2 PSK"
+        config ESP_WIFI_AUTH_WPA_WPA2_PSK
+            bool "WPA/WPA2 PSK"
+        config ESP_WIFI_AUTH_WPA3_PSK
+            bool "WPA3 PSK"
+        config ESP_WIFI_AUTH_WPA2_WPA3_PSK
+            bool "WPA2/WPA3 PSK"
+        config ESP_WIFI_AUTH_WAPI_PSK
+            bool "WAPI PSK"
+    endchoice
+
+    config UDP_PORT
+		int "UDP Port Number"
+		range 49152 65535
+		default 49876
+		help
+			Communication UDP port number
+
+	config MDNS_TXT
+		bool "Use mDNS TXT Record"
+		default false
+		help
+			Use mDNS TXT Record.
+
+	config MDNS_INSTANCE
+		string
+		default "ESP32 with mDNS"
+
+	config MDNS_HOSTNAME
+		string "Setup hostname"
+		default "esp32"
+
+    choice
+        prompt "Select BME280 I2C Address"
+        default BME280_I2C_ADDRESS1
+        help
+            Select the I2C address of the BME280 sensor.
+
+    config BME280_I2C_ADDRESS1
+        bool "0x76"
+        help
+            Select this option to use BME280 I2C address 0x76.
+
+    config BME280_I2C_ADDRESS2
+        bool "0x77"
+        help
+            Select this option to use BME280 I2C address 0x77.
+    
+    endchoice
+
+endmenu

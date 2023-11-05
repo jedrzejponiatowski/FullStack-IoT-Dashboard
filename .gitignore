@@ -24,3 +24,7 @@
 /client/npm-debug.log*
 /client/yarn-debug.log*
 /client/yarn-error.log*
+
+/ESP32/build
+/ESP32/.vscode
+/ESP32/sdkconfig

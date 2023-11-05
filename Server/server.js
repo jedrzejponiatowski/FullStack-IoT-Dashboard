@@ -61,45 +61,44 @@ mqttClient.on("connect", () => {
     }
   });
 
-
-
   mqttClient.on("message", (MQTT_TOPIC, message) => {
-    // Przetwarzanie otrzymanej wiadomości MQTT
+    // Przetwarzanie otrzymanej wiadomości MQTT w formie ciągu znaków
     try {
-      const sensorData = JSON.parse(message);
+      // Podziel otrzymane dane za pomocą przecinka
+      const dataParts = message.toString().split(",");
 
-      // Sprawdź, czy otrzymane dane są w odpowiednim formacie
-      if (
-        sensorData &&
-        sensorData.sensorType &&
-        //sensorData.sensorRef &&
-        sensorData.sensorStatus &&
-        sensorData.timestamp &&
-        (sensorData.sensorValue >=0)
-      ) {
-        // Tworzenie odpowiedniej struktury danych dla WebSocket
+      // Sprawdź, czy dostarczono wystarczającą ilość części
+      if (dataParts.length >= 5) {
+        const [sensorType, sensorRef, sensorStatus, timestamp, sensorValue] = dataParts;
+
+        // Utwórz obiekt JSON z otrzymanych części
+        const sensorData = {
+          sensorType,
+          sensorRef: parseInt(sensorRef),
+          sensorStatus,
+          timestamp: parseInt(timestamp),
+          sensorValue: parseInt(sensorValue),
+        };
+
+        // Utwórz wiadomość WebSocket
         const data = {
           type: "SENSOR",
-          sensorData: {
-            sensorType: sensorData.sensorType,
-            sensorRef: sensorData.sensorRef,
-            sensorStatus: sensorData.sensorStatus,
-            timestamp: sensorData.timestamp,
-            sensorValue: sensorData.sensorValue,
-          },
+          sensorData,
         };
-        console.log("wysylam dane na websocket")
-        console.log(JSON.stringify(data))
-        // Wysłanie danych do klientów WebSocket
+
+        console.log("Sending data to WebSocket");
+        console.log(JSON.stringify(data));
+
+        // Wyślij dane do klientów WebSocket
         for (const client of CLIENTS) {
           client.send(JSON.stringify(data));
         }
       } else {
-        console.error("Otrzymane dane MQTT są w niepoprawnym formacie.");
-        console.log(JSON.stringify(sensorData));
+        console.error("Received MQTT data is in an incorrect format.");
+        console.log(message.toString());
       }
     } catch (error) {
-      console.error("Błąd przetwarzania wiadomości MQTT: " + error.message);
+      console.error("Error processing MQTT message: " + error.message);
     }
   });
 });
@@ -117,3 +116,7 @@ process.on("unhandledRejection", (err, promise) => {
 
 
 //mosquitto_pub -h test.mosquitto.org -t "poniajed_sensor1" -m "{\"sensorType\":\"photoresistor\",\"sensorStatus\":\"Light\",\"timestamp\":1697879661431,\"sensorValue\":14}"
+
+//mosquitto_pub -h test.mosquitto.org -t "poniajed_sensor1" -m "{sensorType:photoresistor,sensorStatus:Light,timestamp:1697879661431,sensorValue:14}"
+
+//mosquitto_pub -h test.mosquitto.org -t "MQTT_topic::temperature" -m "temperature,0,Light,1697879661431,14"
