@@ -18,6 +18,7 @@ app.use(express.json());
 app.use("/api/authenticate", require("./routes/authenticate"));
 app.use("/api/authorize", require("./routes/authorize"));
 app.use("/api/devices", require("./routes/DeviceRouter"));
+app.use("/api/channels", require("./routes/ChannelRouter"));
 
 // Error Handler
 app.use(errorHandler);

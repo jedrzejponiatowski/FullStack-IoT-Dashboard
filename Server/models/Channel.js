@@ -4,6 +4,7 @@ const ChannelSchema = new mongoose.Schema({
   ID_channel: {
     type: Number,
     required: [true, "Please provide an ID for the channel"],
+    key: true,
   },
   type: {
     type: String,
@@ -19,8 +20,7 @@ const ChannelSchema = new mongoose.Schema({
   factor: {
     type: Number,
     required: [true, "Please provide a factor value"],
-  },
-  // Dodaj inne pola, które chcesz przechowywać w modelu kanału
+  }
 });
 
 const Channel = mongoose.model("Channel", ChannelSchema);
