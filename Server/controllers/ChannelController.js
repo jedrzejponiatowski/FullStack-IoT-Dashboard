@@ -36,7 +36,7 @@ exports.getChannels = async (req, res, next) => {
 // @access  Private
 exports.getChannel = async (req, res, next) => {
   try {
-    const channel = await Channel.findOne({ ID_channel: req.params.id });
+    const channel = await Channel.findById(req.params.id);
     if (!channel) {
       return next(new ErrorResponse(`Channel not found with ID ${req.params.id}`, 404));
     }
@@ -53,33 +53,33 @@ exports.getChannel = async (req, res, next) => {
 // @route   PUT /api/channels/:id
 // @access  Private
 exports.updateChannel = async (req, res, next) => {
-  try {
-    const channel = await Channel.findOneAndUpdate(
-      { ID_channel: req.params.id },
-      req.body, // Przekazuje dane z żądania do aktualizacji
-      {
-        new: true, // Zwraca zaktualizowany kanał
-        runValidators: true, // Uruchamia walidatory schematu
+    try {
+      const channel = await Channel.findByIdAndUpdate(
+        req.params.id, // Zmieniłem na req.params.id
+        req.body, // Przekazuje dane z żądania do aktualizacji
+        {
+          new: true, // Zwraca zaktualizowany kanał
+          runValidators: true, // Uruchamia walidatory schematu
+        }
+      );
+      if (!channel) {
+        return next(new ErrorResponse(`Channel not found with ID ${req.params.id}`, 404));
       }
-    );
-    if (!channel) {
-      return next(new ErrorResponse(`Channel not found with ID ${req.params.id}`, 404));
+      res.status(200).json({
+        success: true,
+        data: channel,
+      });
+    } catch (error) {
+      next(error);
     }
-    res.status(200).json({
-      success: true,
-      data: channel,
-    });
-  } catch (error) {
-    next(error);
-  }
-};
+  };
 
 // @desc    Usuwanie kanału
 // @route   DELETE /api/channels/:id
 // @access  Private
 exports.deleteChannel = async (req, res, next) => {
   try {
-    const channel = await Channel.findOneAndDelete({ ID_channel: req.params.id });
+    const channel = await Channel.findByIdAndDeletedAndDelete(req.params.id);
     if (!channel) {
       return next(new ErrorResponse(`Channel not found with ID ${req.params.id}`, 404));
     }

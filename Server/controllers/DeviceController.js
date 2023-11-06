@@ -36,7 +36,7 @@ exports.getDevices = async (req, res, next) => {
 // @access  Private
 exports.getDevice = async (req, res, next) => {
     try {
-      const device = await Device.findOne({ ID_device: req.params.id });
+      const device = await Device.findById(req.params.id);
       if (!device) {
         return next(new ErrorResponse(`Device not found with ID ${req.params.id}`, 404));
       }
@@ -54,8 +54,8 @@ exports.getDevice = async (req, res, next) => {
 // @access  Private
 exports.updateDevice = async (req, res, next) => {
     try {
-      const device = await Device.findOneAndUpdate(
-        { ID_device: req.params.id },
+      const device = await Device.findByIdAndUpdate(
+        req.params.id, // Zmieniłem na req.params.id
         req.body, // Przekazuje dane z żądania do aktualizacji
         {
           new: true, // Zwraca zaktualizowane urządzenie
@@ -80,7 +80,7 @@ exports.updateDevice = async (req, res, next) => {
 // @access  Private
 exports.deleteDevice = async (req, res, next) => {
   try {
-    const device = await Device.findOneAndDelete({ ID_device: req.params.id });
+    const device = await Device.findByIdAndDelete(req.params.id);
     if (!device) {
       return next(new ErrorResponse(`Device not found with ID ${req.params.id}`, 404));
     }

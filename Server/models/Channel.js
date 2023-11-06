@@ -1,11 +1,6 @@
 const mongoose = require("mongoose");
 
 const ChannelSchema = new mongoose.Schema({
-  ID_channel: {
-    type: Number,
-    required: [true, "Please provide an ID for the channel"],
-    key: true,
-  },
   type: {
     type: String,
     required: [true, "Please provide a channel type"],

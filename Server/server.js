@@ -7,7 +7,7 @@ const WebSocket = require("ws");
 const mqtt = require("mqtt");
 
 const MQTT_BROKER_URL = "mqtt://test.mosquitto.org"; //
-const MQTT_TOPIC_TEMPERATURE = "MQTT_topic::temperature";
+const MQTT_TOPIC = "::MQTT_topic::";
 
 connectDB();
 
@@ -19,6 +19,8 @@ app.use("/api/authenticate", require("./routes/authenticate"));
 app.use("/api/authorize", require("./routes/authorize"));
 app.use("/api/devices", require("./routes/DeviceRouter"));
 app.use("/api/channels", require("./routes/ChannelRouter"));
+app.use("/api/measurements", require("./routes/MeasurementRouter"));
+
 
 // Error Handler
 app.use(errorHandler);
@@ -57,23 +59,19 @@ const mqttClient = mqtt.connect(MQTT_BROKER_URL);
 mqttClient.on("connect", () => {
   console.log("Connected to MQTT broker");
 
-  mqttClient.subscribe(MQTT_TOPIC_TEMPERATURE, (err) => {
+  mqttClient.subscribe(MQTT_TOPIC, (err) => {
     if (!err) {
-      console.log(`Subscribed to MQTT topic: ${MQTT_TOPIC_TEMPERATURE}`);
+      console.log(`Subscribed to MQTT topic: ${MQTT_TOPIC}`);
     }
   });
 
   mqttClient.on("message", (MQTT_TOPIC, message) => {
-    // Przetwarzanie otrzymanej wiadomości MQTT w formie ciągu znaków
     try {
-      // Podziel otrzymane dane za pomocą przecinka
       const dataParts = message.toString().split(",");
 
-      // Sprawdź, czy dostarczono wystarczającą ilość części
       if (dataParts.length >= 5) {
         const [sensorType, sensorRef, sensorStatus, timestamp, sensorValue] = dataParts;
 
-        // Utwórz obiekt JSON z otrzymanych części
         const sensorData = {
           sensorType,
           sensorRef: parseInt(sensorRef),
@@ -91,7 +89,6 @@ mqttClient.on("connect", () => {
         console.log("Sending data to WebSocket");
         console.log(JSON.stringify(data));
 
-        // Wyślij dane do klientów WebSocket
         for (const client of CLIENTS) {
           client.send(JSON.stringify(data));
         }
@@ -103,7 +100,12 @@ mqttClient.on("connect", () => {
       console.error("Error processing MQTT message: " + error.message);
     }
   });
+
+
+  
 });
+
+
 
 const PORT = process.env.PORT || 5000;
 
@@ -116,9 +118,5 @@ process.on("unhandledRejection", (err, promise) => {
   serverListener.close(() => process.exit(1));
 });
 
-
-//mosquitto_pub -h test.mosquitto.org -t "poniajed_sensor1" -m "{\"sensorType\":\"photoresistor\",\"sensorStatus\":\"Light\",\"timestamp\":1697879661431,\"sensorValue\":14}"
-
-//mosquitto_pub -h test.mosquitto.org -t "poniajed_sensor1" -m "{sensorType:photoresistor,sensorStatus:Light,timestamp:1697879661431,sensorValue:14}"
 
 //mosquitto_pub -h test.mosquitto.org -t "MQTT_topic::temperature" -m "temperature,0,Light,1697879661431,14"
