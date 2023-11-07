@@ -4,6 +4,7 @@ const ChannelSchema = new mongoose.Schema({
   type: {
     type: String,
     required: [true, "Please provide a channel type"],
+    unique: true,
   },
   description: {
     type: String,

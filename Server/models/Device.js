@@ -4,6 +4,7 @@ const DeviceSchema = new mongoose.Schema({
   MAC: {
     type: String,
     required: [true, "Please provide a MAC address"],
+    unique: true,
   },
   name: {
     type: String,

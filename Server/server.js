@@ -21,6 +21,10 @@ app.use("/api/devices", require("./routes/DeviceRouter"));
 app.use("/api/channels", require("./routes/ChannelRouter"));
 app.use("/api/measurements", require("./routes/MeasurementRouter"));
 
+// Importuj modele urządzeń i kanałów
+const Device = require("./models/Device");
+const Channel = require("./models/Channel");
+const Measurement = require("./models/Measurement");
 
 // Error Handler
 app.use(errorHandler);
@@ -65,36 +69,55 @@ mqttClient.on("connect", () => {
     }
   });
 
-  mqttClient.on("message", (MQTT_TOPIC, message) => {
+  mqttClient.on("message", async (topic, message) => {
     try {
-      const dataParts = message.toString().split(",");
+      const data = JSON.parse(message);
+  
+      console.log(data);
+            // Sprawdź, czy w bazie danych istnieje kanał o określonym typie
+            const channel = await Channel.findOne({ type: data.type });
 
-      if (dataParts.length >= 5) {
-        const [sensorType, sensorRef, sensorStatus, timestamp, sensorValue] = dataParts;
+            console.log(channel);
 
-        const sensorData = {
-          sensorType,
-          sensorRef: parseInt(sensorRef),
-          sensorStatus,
-          timestamp: parseInt(timestamp),
-          sensorValue: parseInt(sensorValue),
-        };
+      // Sprawdź, czy w bazie danych istnieje urządzenie o danym MAC adresie
+      const device = await Device.findOne({ MAC: data.MAC });
 
-        // Utwórz wiadomość WebSocket
-        const data = {
+      console.log(device);
+  
+
+  
+      console.log(device._id, " + ", channel._id);
+
+      if (device && channel) {
+        const newMeasurement = new Measurement({
+          value: data.value,
+          device: device._id,
+          channel: channel._id,
+          timestamp: data.timestamp,
+          status: data.status,
+        });
+  
+        await newMeasurement.save(); // Zapisz nowy pomiar w bazie danych
+        console.log("Measurement saved to the database.");
+  
+        // Tworzenie wiadomości WebSocket
+        const wsData = {
           type: "SENSOR",
-          sensorData,
+          data: {
+            measurement: newMeasurement,
+            device,
+            channel,
+          },
         };
-
-        console.log("Sending data to WebSocket");
-        console.log(JSON.stringify(data));
-
+  
+        // Przekazanie danych przez WebSocket do wszystkich połączonych klientów
+        console.log("wysyłam dane na websocket");
         for (const client of CLIENTS) {
-          client.send(JSON.stringify(data));
+          client.send(JSON.stringify(wsData));
         }
+        console.log("Measurement data sent to WebSocket clients.");
       } else {
-        console.error("Received MQTT data is in an incorrect format.");
-        console.log(message.toString());
+        console.error("Device with the specified MAC or Channel with the specified type not found in the database.");
       }
     } catch (error) {
       console.error("Error processing MQTT message: " + error.message);
@@ -102,7 +125,7 @@ mqttClient.on("connect", () => {
   });
 
 
-  
+
 });
 
 
@@ -119,4 +142,4 @@ process.on("unhandledRejection", (err, promise) => {
 });
 
 
-//mosquitto_pub -h test.mosquitto.org -t "MQTT_topic::temperature" -m "temperature,0,Light,1697879661431,14"
+// mosquitto_pub.exe -h test.mosquitto.org -t "::MQTT_topic::" -m "{\"MAC\":\"00:1A:2B:3C:4D:5E\",\"type\":\"Temperature\",\"value\":20,\"timestamp\":1636200000,\"status\":\"OK\"}"
