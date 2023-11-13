@@ -8,10 +8,10 @@ const Archive = () => {
   useEffect(() => {
     const fetchMeasurements = async () => {
       try {
-        const response = await axios.get('/api/measurements', {
-          params: { populate: 'channel device' },
-        });
-        setMeasurements(response.data.data);
+        const response = await axios.get('/api/measurements');
+        const measurementsData = response.data.data;
+
+        setMeasurements(measurementsData);
         console.log("log");
         console.log(response);
       } catch (error) {

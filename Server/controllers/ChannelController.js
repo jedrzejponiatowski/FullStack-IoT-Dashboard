@@ -1,4 +1,4 @@
-const Channel = require("../models/Channel");
+const { Channel } = require("../models/Measurement");
 const ErrorResponse = require("../utils/errorResponse");
 
 // @desc    Dodawanie nowego kanału

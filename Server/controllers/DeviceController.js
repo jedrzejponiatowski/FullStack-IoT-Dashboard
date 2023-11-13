@@ -1,4 +1,4 @@
-const Device = require("../models/Device");
+const { Device } = require("../models/Measurement");
 const ErrorResponse = require("../utils/errorResponse");
 
 // @desc    Dodawanie nowego urządzenia

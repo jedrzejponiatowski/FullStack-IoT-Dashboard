@@ -1,4 +1,4 @@
-const Measurement = require("../models/Measurement");
+const { Measurement } = require("../models/Measurement");
 const ErrorResponse = require("../utils/errorResponse");
 
 
@@ -8,6 +8,8 @@ const ErrorResponse = require("../utils/errorResponse");
 exports.getMeasurements = async (req, res, next) => {
     try {
       const measurements = await Measurement.find()
+        .populate('device') // Dodaj populate dla urządzenia
+        .populate('channel') // Dodaj populate dla kanału
         .exec();
   
       console.log("aa");

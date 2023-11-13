@@ -22,8 +22,8 @@ app.use("/api/channels", require("./routes/ChannelRouter"));
 app.use("/api/measurements", require("./routes/MeasurementRouter"));
 
 // Importuj modele urządzeń i kanałów
-const Device = require("./models/Device");
-const Channel = require("./models/Channel");
+const Device = require("./models/Measurement");
+const Channel = require("./models/Measurement");
 const Measurement = require("./models/Measurement");
 
 // Error Handler
