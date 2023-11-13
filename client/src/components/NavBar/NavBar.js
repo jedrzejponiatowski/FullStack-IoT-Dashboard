@@ -1,5 +1,5 @@
 import React from "react";
-import { NavLink, useNavigate} from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import "./NavBar.css";
 
 const Navbar = () => {
@@ -13,10 +13,19 @@ const Navbar = () => {
   return (
     <nav>
       <div className="nav-container">
-        <NavLink exact to="/" className="nav-logo">
-          <h2>IoT Dashboard</h2>
-        </NavLink>
-        <div className="nav-links">
+        <div className="nav-buttons">
+          <NavLink exact to="/" className="nav-link">
+            IoT Dashboard
+          </NavLink>
+          <button onClick={() => navigate("/realtime")} className="nav-btn">
+            Realtime
+          </button>
+          <button onClick={() => navigate("/archival")} className="nav-btn">
+            Archival
+          </button>
+          <button onClick={() => navigate("/manage")} className="nav-btn">
+            Manage
+          </button>
           <button onClick={logoutHandler} className="nav-btn">
             Logout
           </button>

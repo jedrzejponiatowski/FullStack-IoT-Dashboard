@@ -7,12 +7,12 @@ const MeasurementSchema = new mongoose.Schema({
   },
   device: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "Device",
+    ref: 'Device',
     required: [true, "Please provide a device ID"],
   },
   channel: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "Channel",
+    ref: 'Channel',
     required: [true, "Please provide a channel ID"],
   },
   timestamp: {
@@ -25,6 +25,6 @@ const MeasurementSchema = new mongoose.Schema({
   }
 });
 
-const Measurement = mongoose.model("Measurement", MeasurementSchema);
+const Measurement = mongoose.model('Measurement', MeasurementSchema);
 
 module.exports = Measurement;

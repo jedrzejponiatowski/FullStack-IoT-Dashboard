@@ -7,37 +7,44 @@ nav {
     padding: 20px;
     background-color: #023047;
   }
-
-.nav-container {
-  margin: auto;
-  max-width: 1200px;
-  display: flex;
-  flex-direction: row;
-  flex-wrap: nowrap;
-  justify-content: space-between;
-}
-
-.nav-logo {
-  text-decoration: none;
-  color: #ffffff;
-}
-
-.nav-links {
-  display: flex;
-  flex-direction: row;
-  flex-wrap: nowrap;
-  justify-content: space-evenly;
-  align-items: center;
-}
-
-.nav-btn {
-  padding: 8px 10px;
-  cursor: pointer;
-  width: 100%;
-  font-size: 14px;
-  font-weight: 700;
-  border: none;
-  border-radius: 2px;
-  color: #023047;
-  background-color: #fb8500;
-}
+  
+  .nav-container {
+    margin: auto;
+    max-width: 1200px;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .nav-links {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    align-items: center;
+  }
+  
+  .nav-logo {
+    text-decoration: none;
+    color: #ffffff;
+    margin-right: 20px; /* Dodaj odstęp między "IoT Dashboard" a przyciskami */
+  }
+  
+  .nav-btn {
+    padding: 8px 10px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 700;
+    border: none;
+    border-radius: 2px;
+    color: #023047;
+    background-color: #fb8500;
+    flex: 1; /* Rozciągnij przyciski po całej szerokości zakładki */
+    margin-right: 10px; /* Dodaj odstęp między przyciskami */
+  }
+  
+  /* Styl przycisku "Logout" */
+  .nav-btn:last-child {
+    margin-right: 0; /* Usuń odstęp po prawej stronie ostatniego przycisku */
+  }
+  

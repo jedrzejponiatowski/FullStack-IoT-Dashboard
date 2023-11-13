@@ -104,7 +104,7 @@ const Dashboard = () => {
       <div className="Navbar">
         <Navbar />
       </div>
-      
+    {/*
       <div className="TemperatureData">
         <TemperatureSensor sensorConfig={TemperatureConfig} sensorData={sensorData_temperature}/>
       </div>
@@ -117,6 +117,7 @@ const Dashboard = () => {
       <div className="LuminousData">
         <LuminousSensor sensorConfig={LuminousConfig} sensorData={sensorData_luminous}/>
       </div>
+    */}
     </>
   );
 };

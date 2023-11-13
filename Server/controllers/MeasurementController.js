@@ -1,20 +1,27 @@
 const Measurement = require("../models/Measurement");
 const ErrorResponse = require("../utils/errorResponse");
 
+
 // @desc    Pobieranie wszystkich pomiarów
 // @route   GET /api/measurements
 // @access  Public
 exports.getMeasurements = async (req, res, next) => {
-  try {
-    const measurements = await Measurement.find();
-    res.status(200).json({
-      success: true,
-      data: measurements,
-    });
-  } catch (error) {
-    next(error);
-  }
-};
+    try {
+      const measurements = await Measurement.find()
+        .exec();
+  
+      console.log("aa");
+      console.log(measurements);
+  
+      res.status(200).json({
+        success: true,
+        data: measurements,
+      });
+    } catch (error) {
+      next(error);
+    }
+  };
+  
 
 // @desc    Pobieranie pojedynczego pomiaru na podstawie ID
 // @route   GET /api/measurements/:id
