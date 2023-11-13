@@ -22,9 +22,7 @@ app.use("/api/channels", require("./routes/ChannelRouter"));
 app.use("/api/measurements", require("./routes/MeasurementRouter"));
 
 // Importuj modele urządzeń i kanałów
-const Device = require("./models/Measurement");
-const Channel = require("./models/Measurement");
-const Measurement = require("./models/Measurement");
+const {Device, Channel, Measurement} = require("./models/Measurement");
 
 // Error Handler
 app.use(errorHandler);
@@ -71,13 +69,13 @@ mqttClient.on("connect", () => {
 
   mqttClient.on("message", async (topic, message) => {
     try {
+        console.log("gained message");
       const data = JSON.parse(message);
   
-      console.log(data);
+        console.log(data);
             // Sprawdź, czy w bazie danych istnieje kanał o określonym typie
-            const channel = await Channel.findOne({ type: data.type });
-
-            console.log(channel);
+        const channel = await Channel.findOne({ type: data.type });
+        console.log(channel);
 
       // Sprawdź, czy w bazie danych istnieje urządzenie o danym MAC adresie
       const device = await Device.findOne({ MAC: data.MAC });
