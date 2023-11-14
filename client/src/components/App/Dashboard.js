@@ -104,17 +104,13 @@ export default function Dashboard() {
       case 'Temperature':
         return (
             <React.Fragment>
-              <Box sx={{ display: 'flex', gap: 2 }}>
                   <Chart />
-              </Box>
             </React.Fragment>
           );
       case 'Archive': // Dodano nowy case dla 'Archive'
           return (
             <React.Fragment>
-              <Box sx={{ display: 'flex', gap: 2 }}>
                 <Archive />
-              </Box>
             </React.Fragment>
           );
       // Dodaj przypadki dla innych zakładek, jeśli są potrzebne
