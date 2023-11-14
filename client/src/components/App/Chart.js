@@ -20,14 +20,16 @@ import {
   ResponsiveContainer,
   CartesianGrid,
   Legend,
+  Tooltip,
 } from 'recharts';
 
-const Chart = () => {
+const Chart = ({ measurementName }) => {
   const theme = useTheme();
   const [chartData, setChartData] = useState([]);
   const [selectedDevices, setSelectedDevices] = useState([]);
   const [uniqueDevices, setUniqueDevices] = useState([]);
-  const [selectedTimeInterval, setSelectedTimeInterval] = useState(null);
+  const [selectedTimeInterval, setSelectedTimeInterval] = useState('1');
+  const [currentAxisInterval, setCurrentAxisInterval] = useState(1);
   const [chartColors, setChartColors] = useState([
     '#FF5733', // Pomarańczowy
     '#34A853', // Zielony
@@ -35,49 +37,66 @@ const Chart = () => {
     '#EA4335', // Czerwony
   ]);
 
-  
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        // Pobieranie danych pomiarowych
-        const measurementsResponse = await axios.get('/api/measurements');
-        const measurementsData = measurementsResponse.data.data;
+    fetchData(selectedTimeInterval, measurementName);  // Dodaj measurementName jako drugi argument
+  }, [selectedDevices, selectedTimeInterval, measurementName]);
 
-        // Tworzenie listy unikalnych urządzeń (unikalne MAC adresy)
-        const devices = measurementsData.map((measurement) => measurement.device.MAC);
-        const uniqueDevices = [...new Set(devices)];
+  const fetchData = async (interval, measurementName) => {
+    try {
+      const measurementsResponse = await axios.get('/api/measurements');
+      const measurementsData = measurementsResponse.data.data;
 
-        setUniqueDevices(uniqueDevices.slice(0, 4));
+      const filteredMeasurementsData = measurementsData.filter(
+        (measurement) => measurement.channel.type === measurementName
+      );
 
-        // Jeśli nie ma wybranych urządzeń, ustaw wszystkie dostępne jako wybrane
-        if (selectedDevices.length === 0) {
-          setSelectedDevices(uniqueDevices.slice(0, 4)); // Ograniczenie do 4 urządzeń
-        }
-
-        // Tworzenie danych do wykresu tylko z wybranych urządzeń
-        const chartData = uniqueDevices.slice(0, 4).map((deviceMAC, index) => {
-          return {
-            deviceMAC,
-            data: measurementsData
-              .filter((measurement) => measurement.device.MAC === deviceMAC)
-              .map((measurement) => ({
-                time: formatDate(measurement.timestamp),
-                amount: measurement.value,
-              })),
-            color: chartColors[index],
-          };
-        });
-
-        // Ustawianie danych do wykresu
-        setChartData(chartData);
-      } catch (error) {
-        console.error('Error fetching data:', error);
+      if (filteredMeasurementsData.length === 0) {
+        const placeholderMeasurement = {
+          device: { MAC: 'undefined' },
+          value: 0,
+          timestamp: new Date().toISOString(),
+        };
+        filteredMeasurementsData.push(placeholderMeasurement);
       }
-    };
 
-    fetchData();
-  }, [selectedDevices, chartColors]);
+      // Dodatkowa filtracja pomiarów starszych niż 1/3/6 minut
+      const intervalMilliseconds = parseInt(interval) * 60 * 1000;
+      const currentTimestamp = new Date().getTime();
+      const filteredMeasurements = filteredMeasurementsData.filter(
+        (measurement) => currentTimestamp - new Date(measurement.timestamp).getTime() <= intervalMilliseconds
+      );
+    
+      filteredMeasurements.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+
+      const devices = filteredMeasurements.map((measurement) => measurement.device.MAC);
+      const uniqueDevices = [...new Set(devices)];
+
+      setUniqueDevices(uniqueDevices.slice(0, 4));
+
+      if (selectedDevices.length === 0) {
+        setSelectedDevices(uniqueDevices.slice(0, 4));
+      }
+
+
+      const chartData = uniqueDevices.slice(0, 4).map((deviceMAC, index) => {
+        return {
+          deviceMAC,
+          data: filteredMeasurements
+            .filter((measurement) => measurement.device.MAC === deviceMAC)
+            .map((measurement) => ({
+              time: formatDate(measurement.timestamp),
+              amount: measurement.value,
+            })),
+          color: chartColors[index],
+        };
+      });
+
+      setChartData(chartData);
+    } catch (error) {
+      console.error('Error fetching data:', error);
+    }
+  };
 
   const formatDate = (timestamp) => {
     const date = new Date(timestamp);
@@ -86,7 +105,6 @@ const Chart = () => {
   };
 
   const handleDeviceChange = (deviceMAC) => {
-    // Toggle stanu wybranego urządzenia
     setSelectedDevices((prevSelectedDevices) => {
       if (prevSelectedDevices.includes(deviceMAC)) {
         return prevSelectedDevices.filter((mac) => mac !== deviceMAC);
@@ -97,10 +115,8 @@ const Chart = () => {
   };
 
   const handleTimeIntervalChange = (interval) => {
-    // Toggle stanu wybranego interwału czasowego
-    setSelectedTimeInterval((prevSelectedTimeInterval) => {
-      return prevSelectedTimeInterval === interval ? null : interval;
-    });
+    setSelectedTimeInterval(interval);
+    setCurrentAxisInterval(Number(interval) * 2);
   };
 
   return (
@@ -121,9 +137,11 @@ const Chart = () => {
           <ResponsiveContainer width="100%" height="100%">
             <LineChart margin={{ top: 50, right: 20, bottom: 50, left: -10 }}>
               <CartesianGrid stroke="#bbb" strokeDasharray="3 3" opacity={0.5} />
-              <XAxis dataKey="time" stroke={theme.palette.text.secondary} tick={{ fontSize: 16 }} />
+              <XAxis dataKey="time" stroke={theme.palette.text.secondary} tick={{ fontSize: 16 }} interval={currentAxisInterval} />
               <YAxis stroke={theme.palette.text.secondary} tick={{ fontSize: 16 }} tickCount={10} domain={[0, 40]} />
               <Legend verticalAlign="top" height={36} />
+              {/* Dodajemy Tooltip dla interaktywnego podglądu */}
+              <Tooltip content={<CustomTooltip />} />
               {chartData.map((device, index) => (
                 <Line
                   key={device.deviceMAC}
@@ -134,8 +152,8 @@ const Chart = () => {
                   stroke={device.color}
                   strokeWidth={2}
                   dot={{ strokeWidth: 2, r: 2 }}
-                  connectNulls={true} // Dodane, aby po odznaczeniu checkboxa serii danych zostały usunięte
-                  opacity={selectedDevices.includes(device.deviceMAC) ? 1 : 0} // Dodane, aby kontrolować widoczność serii
+                  connectNulls={true}
+                  opacity={selectedDevices.includes(device.deviceMAC) ? 1 : 0}
                 />
               ))}
             </LineChart>
@@ -173,14 +191,14 @@ const Chart = () => {
             Time Interval
           </Typography>
           <List>
-            {['1h', '3h', '6h'].map((interval) => (
+            {['1', '3', '6'].map((interval) => (
               <React.Fragment key={interval}>
                 <ListItem>
                   <Checkbox
                     checked={selectedTimeInterval === interval}
                     onChange={() => handleTimeIntervalChange(interval)}
                   />
-                  <ListItemText primary={interval} />
+                  <ListItemText primary={`${interval} min`} />
                 </ListItem>
                 <Divider />
               </React.Fragment>
@@ -191,5 +209,21 @@ const Chart = () => {
     </Grid>
   );
 };
+
+
+// Komponent CustomTooltip do wyświetlania informacji o punkcie po najechaniu
+const CustomTooltip = ({ active, payload }) => {
+    if (active && payload && payload.length) {
+      const data = payload[0].payload;
+      return (
+        <div style={{ background: '#fff', border: '1px solid #ccc', padding: '10px' }}>
+          <p>{`Time: ${data.time}`}</p>
+          <p>{`Value: ${data.amount}`}</p>
+        </div>
+      );
+    }
+    return null;
+  };
+
 
 export default Chart;

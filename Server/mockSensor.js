@@ -1,46 +1,27 @@
 const mqtt = require("mqtt");
 
 const MQTT_BROKER_URL = "mqtt://test.mosquitto.org";
-const MQTT_TOPIC_TEMPERATURE = "MQTT_topic::temperature";
+const MQTT_TOPIC_TEMPERATURE = "::MQTT_topic::";
 
 const client = mqtt.connect(MQTT_BROKER_URL);
 
 client.on("connect", () => {
-    setInterval(() => {
-        const data = `{"sensorType":"luminous", "sensorRef":${0}, "sensorStatus":"Light", "timestamp":${Date.now()}, "sensorValue":${Math.floor(Math.random() * 10)}}`;
-        client.publish(MQTT_TOPIC_TEMPERATURE, data);
-      }, 5000);
-    
   setInterval(() => {
-    const data = `{"sensorType":"temperature", "sensorRef":${0}, "sensorStatus":"Light", "timestamp":${Date.now()}, "sensorValue":${Math.floor(Math.random() * 50)}}`;
+    const data = `{"MAC":"00:1A:2B:3C:4D:5E","type":"Temperature","value":${Math.floor(Math.random() * 41)},"timestamp":${Date.now()},"status":"OK"}`;
     client.publish(MQTT_TOPIC_TEMPERATURE, data);
   }, 5000);
 
+  /*
   setInterval(() => {
-    const data = `{"sensorType":"temperature", "sensorRef":${1}, "sensorStatus":"Dark", "timestamp":${Date.now()}, "sensorValue":${Math.floor(Math.random() * 50)}}`;
+    const data = `{"MAC":"00:1A:2B:3C:4D:00","type":"Temperature","value":${Math.floor(Math.random() * 41)},"timestamp":${Date.now()},"status":"OK"}`;
     client.publish(MQTT_TOPIC_TEMPERATURE, data);
   }, 6000);
 
   setInterval(() => {
-    const data = `{"sensorType":"humidity", "sensorRef":${0}, "sensorStatus":"Light", "timestamp":${Date.now()}, "sensorValue":${Math.floor(Math.random() * 100)}}`;
+    const data = `{"MAC":"00:1A:2B:3C:4D:33","type":"Temperature","value":${Math.floor(Math.random() * 41)},"timestamp":${Date.now()},"status":"OK"}`;
     client.publish(MQTT_TOPIC_TEMPERATURE, data);
   }, 7000);
-
-  setInterval(() => {
-    const data = `{"sensorType":"humidity", "sensorRef":${1}, "sensorStatus":"Dark", "timestamp":${Date.now()}, "sensorValue":${Math.floor(Math.random() * 100)}}`;
-    client.publish(MQTT_TOPIC_TEMPERATURE, data);
-  }, 8000);
-
-  setInterval(() => {
-    const data = `{"sensorType":"pressure", "sensorRef":${0}, "sensorStatus":"Light", "timestamp":${Date.now()}, "sensorValue":${Math.floor(Math.random() * 1000)}}`;
-    client.publish(MQTT_TOPIC_TEMPERATURE, data);
-  }, 5000);
-
-  setInterval(() => {
-    const data = `{"sensorType":"pressure", "sensorRef":${1}, "sensorStatus":"Dark", "timestamp":${Date.now()}, "sensorValue":${Math.floor(Math.random() * 1000)}}`;
-    client.publish(MQTT_TOPIC_TEMPERATURE, data);
-  }, 4000);
-  
+  */
 });
 
 client.on("message", (topic, message) => {

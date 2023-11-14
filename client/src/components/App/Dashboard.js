@@ -104,9 +104,15 @@ export default function Dashboard() {
       case 'Temperature':
         return (
             <React.Fragment>
-                  <Chart />
+                  <Chart measurementName="Temperature"/>
             </React.Fragment>
           );
+      case 'Humidity':
+        return (
+            <React.Fragment>
+                <Chart measurementName="Humidity"/>
+            </React.Fragment>
+        );
       case 'Archive': // Dodano nowy case dla 'Archive'
           return (
             <React.Fragment>
