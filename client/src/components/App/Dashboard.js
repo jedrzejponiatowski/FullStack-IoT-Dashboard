@@ -22,6 +22,7 @@ import Deposits from './Deposits';
 import Grid from '@mui/material/Grid';
 import Orders from './Orders';
 import Archive from './Archive'
+import FilterArchive from './FilterArchive';
 
 
 
@@ -103,56 +104,16 @@ export default function Dashboard() {
       case 'Temperature':
         return (
             <React.Fragment>
-              <Typography variant="h3" gutterBottom component="div">
-                Temperature
-              </Typography>
               <Box sx={{ display: 'flex', gap: 2 }}>
-                <Paper
-                  sx={{
-                    p: 2,
-                    display: 'flex',
-                    flexDirection: 'column',
-                    height: 500,
-                    width: '75%',
-                  }}
-                >
-                  
-                  <Orders />
-                </Paper>
-                <Paper
-                  sx={{
-                    p: 2,
-                    display: 'flex',
-                    flexDirection: 'column',
-                    height: '100%',
-                    width: '25%',
-                  }}
-                >
-                    <Typography variant="h6">Okno 2</Typography>
-                </Paper>
+                  <Chart />
               </Box>
             </React.Fragment>
           );
       case 'Archive': // Dodano nowy case dla 'Archive'
           return (
             <React.Fragment>
-              <Typography variant="h3" gutterBottom component="div">
-                Archive
-              </Typography>
               <Box sx={{ display: 'flex', gap: 2 }}>
-                <Archive /> {/* Wywołaj komponent Archive */}
-                <Paper
-                  sx={{
-                    p: 2,
-                    display: 'flex',
-                    flexDirection: 'column',
-                    height: '100%',
-                    width: '25%',
-                  }}
-                >
-                  <Typography variant="h6">Okno 2</Typography>
-                  {/* Dodaj dowolny inny komponent, który chcesz umieścić w oknie */}
-                </Paper>
+                <Archive />
               </Box>
             </React.Fragment>
           );
