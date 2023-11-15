@@ -3,11 +3,12 @@ const router = express.Router();
 const {
     getMeasurements,
     getMeasurementById,
-    addMeasurement
+    addMeasurement,
+    deleteMeasurements
 } = require("../controllers/MeasurementController");
 
 // Pobieranie wszystkich pomiarów
-router.route("/").get(getMeasurements);
+router.route('/').get(getMeasurements).post(addMeasurement).delete(deleteMeasurements); 
 
 // Pobieranie pojedynczego pomiaru na podstawie ID
 router.route("/:id").get(getMeasurementById);

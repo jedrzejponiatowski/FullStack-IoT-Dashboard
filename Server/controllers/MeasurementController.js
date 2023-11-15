@@ -57,3 +57,19 @@ exports.addMeasurement = async (req, res, next) => {
       next(error);
     }
   };
+
+
+  // @desc    Usuwanie wszystkich pomiarów
+// @route   DELETE /api/measurements
+// @access  Private
+exports.deleteMeasurements = async (req, res, next) => {
+    try {
+      await Measurement.deleteMany();
+      res.status(200).json({
+        success: true,
+        message: 'All measurements deleted successfully.',
+      });
+    } catch (error) {
+      next(error);
+    }
+  };

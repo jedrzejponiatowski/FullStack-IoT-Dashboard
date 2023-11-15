@@ -80,23 +80,27 @@ const handleDeviceDescriptionChange = (event) => {
     try {
       const selectedDeviceId = devices.find(device => device.MAC === selectedDevice)?._id;
       const selectedChannelId = channels.find(channel => channel.type === selectedChannel)?._id;
-
+  
       if (!selectedDeviceId || !selectedChannelId) {
         console.error('Error fetching device or channel id');
         return;
       }
-
+  
+      // Usuń wszystkie pomiary z bazy danych
+      await axios.delete('/api/measurements');
+  
+      // Dodaj nowy pomiar do aktywnych pomiarów
       await axios.post('/api/active_measurements', {
         device: selectedDeviceId,
         channel: selectedChannelId,
       });
-
+  
       const response = await axios.get('/api/active_measurements');
       setActiveMeasurements(response.data.data);
-
+  
       setSelectedDevice('');
       setSelectedChannel('');
-
+  
       console.log('Measurement added successfully');
     } catch (error) {
       console.error('Error adding measurement:', error);

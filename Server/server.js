@@ -59,6 +59,8 @@ wss.on("connection", function connection(ws) {
 
 const mqttClient = mqtt.connect(MQTT_BROKER_URL);
 
+const lastMeasurementTimestamps = {}; // Przechowuje ostatni timestamp dla każdego ActiveMeasurement
+
 mqttClient.on("connect", () => {
   console.log("Connected to MQTT broker");
 
@@ -71,31 +73,44 @@ mqttClient.on("connect", () => {
   mqttClient.on("message", async (topic, message) => {
     try {
       const data = JSON.parse(message);
-  
+
       // Sprawdź, czy w bazie danych istnieje kanał o określonym typie
       const channel = await Channel.findOne({ type: data.type });
-  
+
       // Sprawdź, czy w bazie danych istnieje urządzenie o danym MAC adresie
       const device = await Device.findOne({ MAC: data.MAC });
-  
+
       if (device && channel) {
         // Sprawdź, czy w kolekcji ActiveMeasurements istnieje wpis z danym urządzeniem i kanałem
         const activeMeasurement = await ActiveMeasurements.findOne({
           device: device._id,
           channel: channel._id,
         });
-  
+
         if (activeMeasurement) {
-          const newMeasurement = new Measurement({
-            value: data.value,
-            device: device._id,
-            channel: channel._id,
-            timestamp: data.timestamp,
-            status: data.status,
-          });
-  
-          await newMeasurement.save();
-          console.log("Measurement saved to the database.");
+          const currentTime = new Date().getTime();
+          const lastTimestamp = lastMeasurementTimestamps[activeMeasurement._id] || 0;
+
+          // Jeśli minęła już minuta od ostatniego pomiaru, zapisz nowy pomiar
+          if (currentTime - lastTimestamp >= 20000) {
+            const newMeasurement = new Measurement({
+              value: data.value,
+              device: device._id,
+              channel: channel._id,
+              timestamp: currentTime,
+              status: data.status,
+            });
+
+            await newMeasurement.save();
+            console.log("Measurement saved to the database.");
+
+            // Zaktualizuj ostatni timestamp
+            lastMeasurementTimestamps[activeMeasurement._id] = currentTime;
+          }
+        } else {
+          console.error(
+            "Device with the specified MAC or Channel with the specified type not found in the database."
+          );
         }
       } else {
         console.error(
@@ -107,8 +122,35 @@ mqttClient.on("connect", () => {
     }
   });
 
+  // Dodaj kod do obsługi przypadku braku pomiaru w danej minucie
+  setInterval(async () => {
+    const currentTime = new Date().getTime();
 
+    // Iteruj przez wszystkie ActiveMeasurements
+    for (const activeMeasurementId in lastMeasurementTimestamps) {
+      const lastTimestamp = lastMeasurementTimestamps[activeMeasurementId];
 
+      // Jeśli minęła już minuta od ostatniego pomiaru, zapisz wynik -99 i status UNKNOWN
+      if (currentTime - lastTimestamp >= 20000) {
+        const activeMeasurement = await ActiveMeasurements.findById(activeMeasurementId);
+        if (activeMeasurement) {
+          const newMeasurement = new Measurement({
+            value: -99,
+            device: activeMeasurement.device,
+            channel: activeMeasurement.channel,
+            timestamp: currentTime,
+            status: "UNKNOWN",
+          });
+
+          await newMeasurement.save();
+          console.log("Default Measurement saved to the database.");
+
+          // Zaktualizuj ostatni timestamp
+          lastMeasurementTimestamps[activeMeasurementId] = currentTime;
+        }
+      }
+    }
+  }, 20000);
 });
 
 
