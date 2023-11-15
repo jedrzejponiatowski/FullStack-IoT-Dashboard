@@ -79,7 +79,7 @@ exports.updateChannel = async (req, res, next) => {
 // @access  Private
 exports.deleteChannel = async (req, res, next) => {
   try {
-    const channel = await Channel.findByIdAndDeletedAndDelete(req.params.id);
+    const channel = await Channel.findByIdAndDelete(req.params.id);
     if (!channel) {
       return next(new ErrorResponse(`Channel not found with ID ${req.params.id}`, 404));
     }

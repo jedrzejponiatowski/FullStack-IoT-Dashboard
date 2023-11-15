@@ -70,53 +70,37 @@ mqttClient.on("connect", () => {
 
   mqttClient.on("message", async (topic, message) => {
     try {
-        console.log("gained message");
       const data = JSON.parse(message);
   
-        console.log(data);
-            // Sprawdź, czy w bazie danych istnieje kanał o określonym typie
-        const channel = await Channel.findOne({ type: data.type });
-        console.log(channel);
-
+      // Sprawdź, czy w bazie danych istnieje kanał o określonym typie
+      const channel = await Channel.findOne({ type: data.type });
+  
       // Sprawdź, czy w bazie danych istnieje urządzenie o danym MAC adresie
       const device = await Device.findOne({ MAC: data.MAC });
-
-      console.log(device);
   
-
-  
-      console.log(device._id, " + ", channel._id);
-
       if (device && channel) {
-        const newMeasurement = new Measurement({
-          value: data.value,
+        // Sprawdź, czy w kolekcji ActiveMeasurements istnieje wpis z danym urządzeniem i kanałem
+        const activeMeasurement = await ActiveMeasurements.findOne({
           device: device._id,
           channel: channel._id,
-          timestamp: data.timestamp,
-          status: data.status,
         });
   
-        await newMeasurement.save(); // Zapisz nowy pomiar w bazie danych
-        console.log("Measurement saved to the database.");
+        if (activeMeasurement) {
+          const newMeasurement = new Measurement({
+            value: data.value,
+            device: device._id,
+            channel: channel._id,
+            timestamp: data.timestamp,
+            status: data.status,
+          });
   
-        // Tworzenie wiadomości WebSocket
-        const wsData = {
-          type: "SENSOR",
-          data: {
-            measurement: newMeasurement,
-            device,
-            channel,
-          },
-        };
-  
-        // Przekazanie danych przez WebSocket do wszystkich połączonych klientów
-        console.log("wysyłam dane na websocket");
-        for (const client of CLIENTS) {
-          client.send(JSON.stringify(wsData));
+          await newMeasurement.save();
+          console.log("Measurement saved to the database.");
         }
-        console.log("Measurement data sent to WebSocket clients.");
       } else {
-        console.error("Device with the specified MAC or Channel with the specified type not found in the database.");
+        console.error(
+          "Device with the specified MAC or Channel with the specified type not found in the database."
+        );
       }
     } catch (error) {
       console.error("Error processing MQTT message: " + error.message);

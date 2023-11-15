@@ -31,6 +31,26 @@ const Config = () => {
   const [channels, setChannels] = useState([]);
   const [selectedDeviceName, setSelectedDeviceName] = useState('');
   const [selectedDeviceDescription, setSelectedDeviceDescription] = useState('');
+  const [selectedChannelType, setSelectedChannelType] = useState('');
+    const [selectedChannelDescription, setSelectedChannelDescription] = useState('');
+    const [selectedChannelUnit, setSelectedChannelUnit] = useState('');
+    const [selectedChannelFactor, setSelectedChannelFactor] = useState('');
+
+    const handleChannelTypeChange = (event) => {
+    setSelectedChannelType(event.target.value);
+    };
+
+    const handleChannelDescriptionChange = (event) => {
+    setSelectedChannelDescription(event.target.value);
+    };
+
+    const handleChannelUnitChange = (event) => {
+    setSelectedChannelUnit(event.target.value);
+    };
+
+    const handleChannelFactorChange = (event) => {
+    setSelectedChannelFactor(event.target.value);
+    };
 
 const handleDeviceNameChange = (event) => {
   setSelectedDeviceName(event.target.value);
@@ -96,6 +116,33 @@ const handleDeviceDescriptionChange = (event) => {
     }
   };
 
+  const handleAddChannel = async () => {
+    try {
+      // Assuming you have the API endpoint for adding a channel
+      const response = await axios.post('/api/channels', {
+        type: selectedChannelType,
+        description: selectedChannelDescription,
+        unit: selectedChannelUnit,
+        factor: selectedChannelFactor,
+      });
+
+      // Fetch and update the channels after adding a new one
+      const channelsResponse = await axios.get('/api/channels');
+      setChannels(channelsResponse.data.data);
+      
+      // You might want to clear the input fields after successful addition
+      setSelectedChannelType('');
+      setSelectedChannelDescription('');
+      setSelectedChannelUnit('');
+      setSelectedChannelFactor('');
+
+      console.log('Channel added successfully', response.data);
+    } catch (error) {
+      console.error('Error adding channel:', error);
+    }
+  };
+
+
   const handleAddDevice = async () => {
     try {
       await axios.post('/api/devices', {
@@ -127,6 +174,21 @@ const handleDeviceDescriptionChange = (event) => {
       console.log('Device deleted successfully');
     } catch (error) {
       console.error('Error deleting device:', error);
+    }
+  };
+
+  // Dodaj tę funkcję na początku komponentu Config
+  const handleDeleteChannel = async (channelId) => {
+    try {
+      await axios.delete(`/api/channels/${channelId}`);
+  
+      // Fetch and update the channels after deleting one
+      const channelsResponse = await axios.get('/api/channels');
+      setChannels(channelsResponse.data.data);
+  
+      console.log('Channel deleted successfully');
+    } catch (error) {
+      console.error('Error deleting channel:', error);
     }
   };
 
@@ -176,9 +238,6 @@ const handleDeviceDescriptionChange = (event) => {
               <Grid container spacing={4}>
                 <Grid item xs={8}>
                   <Paper sx={{ p: 2, display: 'flex', flexDirection: 'column', height: 400 }}>
-                    <Typography variant="h6" gutterBottom>
-                      List of Active Measurements
-                    </Typography>
                     <TableContainer>
                       <Table size="small">
                         <TableHead>
@@ -191,9 +250,9 @@ const handleDeviceDescriptionChange = (event) => {
                         <TableBody>
                           {activeMeasurements.map((measurement) => (
                             <TableRow key={measurement._id}>
-                              <TableCell>{measurement.device.MAC}</TableCell>
-                              <TableCell>{measurement.channel.type}</TableCell>
-                              <TableCell>
+                                <TableCell>{measurement.device?.MAC || 'N/A'}</TableCell>
+                                <TableCell>{measurement.channel?.type || 'N/A'}</TableCell>
+                                <TableCell>
                                 <Button
                                   variant="contained"
                                   color="secondary"
@@ -212,9 +271,6 @@ const handleDeviceDescriptionChange = (event) => {
                 <Grid item xs={4}>
                   <Paper sx={{ p: 2, display: 'flex', flexDirection: 'column', height: 400 }}>
                     <Box sx={{ bgcolor: 'white', p: 3 }}>
-                      <Typography variant="h6" gutterBottom>
-                        Manage Measurement
-                      </Typography>
                       <FormControl fullWidth sx={{ mb: 2 }}>
                         <InputLabel id="device-label">Select Device</InputLabel>
                         <Select
@@ -279,9 +335,6 @@ const handleDeviceDescriptionChange = (event) => {
         <Grid container spacing={4}>
           <Grid item xs={8}>
             <Paper sx={{ p: 2, display: 'flex', flexDirection: 'column', height: 400, marginTop: 1 }}>
-              <Typography variant="h6" gutterBottom>
-                List of Active Devices
-              </Typography>
               <TableContainer>
                 <Table size="small">
                   <TableHead>
@@ -317,9 +370,6 @@ const handleDeviceDescriptionChange = (event) => {
           <Grid item xs={4}>
             <Paper sx={{ p: 2, display: 'flex', flexDirection: 'column', height: 400, marginTop: 1 }}>
             <Box sx={{ bgcolor: 'white', p: 3 }}>
-            <Typography variant="h6" gutterBottom>
-                Manage Measurement
-            </Typography>
             <FormControl fullWidth sx={{ mb: 2 }}>
                 <InputLabel id="mac-label">MAC Address</InputLabel>
                 <Input
@@ -362,14 +412,104 @@ const handleDeviceDescriptionChange = (event) => {
       </React.Fragment>
     )}
                 {subTabValue === 1 && (
-                <React.Fragment>
-                    {/* Treść dla SubTab 2 */}
-                    <Typography variant="h6" gutterBottom>
-                    Channels
-                    </Typography>
-                    {/* Dodaj treść dla SubTab 2, zgodnie z Twoimi potrzebami */}
-                </React.Fragment>
-                )}
+  <React.Fragment>
+    <Grid container spacing={4}>
+      {/* Lista kanałów */}
+      <Grid item xs={8}>
+        <Paper sx={{ p: 2, display: 'flex', flexDirection: 'column', height: 400, marginTop: 1 }}>
+          <TableContainer>
+            <Table size="small">
+              <TableHead>
+                <TableRow>
+                  <TableCell>Type</TableCell>
+                  <TableCell>Description</TableCell>
+                  <TableCell>Unit</TableCell>
+                  <TableCell>Factor</TableCell>
+                  <TableCell>Action</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {channels.map((channel) => (
+                  <TableRow key={channel._id}>
+                    <TableCell>{channel.type}</TableCell>
+                    <TableCell>{channel.description}</TableCell>
+                    <TableCell>{channel.unit}</TableCell>
+                    <TableCell>{channel.factor}</TableCell>
+                    <TableCell>
+                      <Button
+                        variant="contained"
+                        color="secondary"
+                        onClick={() => handleDeleteChannel(channel._id)}
+                      >
+                        Delete
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </Paper>
+      </Grid>
+      {/* Opcje do dodawania nowych kanałów */}
+      <Grid item xs={4}>
+        <Paper sx={{ p: 2, display: 'flex', flexDirection: 'column', height: 400, marginTop: 1}}>
+          <Box sx={{ bgcolor: 'white', p: 3 }}>
+            <FormControl fullWidth sx={{ mb: 2 }}>
+              <InputLabel id="type-label">Type</InputLabel>
+              <Input
+                id="type"
+                value={selectedChannelType}
+                onChange={handleChannelTypeChange}
+              />
+            </FormControl>
+            <FormControl fullWidth sx={{ mb: 2 }}>
+              <InputLabel id="description-label">Description</InputLabel>
+              <Input
+                id="description"
+                value={selectedChannelDescription}
+                onChange={handleChannelDescriptionChange}
+              />
+            </FormControl>
+            <FormControl fullWidth sx={{ mb: 2 }}>
+              <InputLabel id="unit-label">Unit</InputLabel>
+              <Select
+                labelId="unit-label"
+                id="unit"
+                value={selectedChannelUnit}
+                onChange={handleChannelUnitChange}
+              >
+                {/* Dodaj elementy do listy wybieralnej jednostek */}
+                <MenuItem value="Volt">Volt</MenuItem>
+                <MenuItem value="Ampere">Ampere</MenuItem>
+                {/* Dodaj więcej jednostek, jeśli to konieczne */}
+              </Select>
+            </FormControl>
+            <FormControl fullWidth sx={{ mb: 2 }}>
+              <InputLabel id="factor-label">Factor</InputLabel>
+              <Input
+                id="factor"
+                value={selectedChannelFactor}
+                onChange={handleChannelFactorChange}
+              />
+            </FormControl>
+            <Box
+              sx={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+              }}
+            >
+              <Button variant="contained" color="primary" onClick={handleAddChannel}>
+                Add
+              </Button>
+            </Box>
+          </Box>
+        </Paper>
+      </Grid>
+    </Grid>
+  </React.Fragment>
+)}
             </React.Fragment>
             )}
         </Box>
