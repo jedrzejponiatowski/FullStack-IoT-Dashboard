@@ -13,8 +13,9 @@ const FilterArchive = ({ filters, onChange }) => {
         display: 'flex',
         flexDirection: 'column',
         height: '100%',
-        width: '100%',
-        marginLeft: 'auto', // Dodano styl, aby przesunąć komponent na prawą stronę
+        width: '150%',
+        marginTop: 10,
+        alignItems: 'center',
       }}
     >
       <Typography variant="h6">Archive Filters</Typography>

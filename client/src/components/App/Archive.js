@@ -9,9 +9,12 @@ import {
   Link,
   Typography,
   Paper,
-  Box,
+  CssBaseline,
+  FormControlLabel,
+  Checkbox,
+  Grid,
 } from '@mui/material';
-import FilterArchive from './FilterArchive';
+import TableContainer from '@mui/material/TableContainer';
 
 const Archive = () => {
   const [measurements, setMeasurements] = useState([]);
@@ -71,49 +74,87 @@ const Archive = () => {
   }, [filters, measurements]);
 
   return (
-    <Box sx={{ display: 'flex', gap: 2}}>
-      {/* Wyniki w tabelce po lewej stronie */}
-      <Paper sx={{
-                    p: 2,
-                    display: 'flex',
-                    flexDirection: 'column',
-                    height: 500,
-                    width: '%',
-                  }}>
-        <Typography variant="h6" gutterBottom component="div">
-          Measurement Archive
-        </Typography>
-        <Table size="small">
-          <TableHead>
-            <TableRow>
-              <TableCell>Channel Type</TableCell>
-              <TableCell>Device MAC</TableCell>
-              <TableCell>Value</TableCell>
-              <TableCell>Date</TableCell>
-              <TableCell>Status</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {filteredMeasurements.map((measurement) => (
-              <TableRow key={measurement._id}>
-                <TableCell>{measurement.channel && measurement.channel.type}</TableCell>
-                <TableCell>{measurement.device && measurement.device.MAC}</TableCell>
-                <TableCell>{measurement.value}</TableCell>
-                <TableCell>{formatDate(measurement.timestamp)}</TableCell>
-                <TableCell>{measurement.status}</TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-        <Link color="primary" href="#" onClick={(e) => e.preventDefault()} sx={{ mt: 3 }}>
-          See more measurements
-        </Link>
-      </Paper>
-      <Paper >
-      {/* Filtry po prawej stronie */}
-      <FilterArchive filters={filters} onChange={handleFilterChange} />
-      </Paper>
-    </Box>
+    <>
+      <CssBaseline />
+      <div style={{ height: '100vh', overflow: 'hidden' }}>
+        <Grid container spacing={4} style={{ height: '100%' }}>
+          <Grid item xs={9}>
+            {/* Wyniki w tabelce po lewej stronie */}
+            <Paper
+              sx={{
+                p: 2,
+                display: 'flex',
+                flexDirection: 'column',
+                height: 500,
+              }}
+            >
+              <Typography variant="h6" gutterBottom component="div">
+                Measurement Archive
+              </Typography>
+              <TableContainer>
+                <Table size="small">
+                  <TableHead>
+                    <TableRow>
+                      <TableCell>Channel Type</TableCell>
+                      <TableCell>Device MAC</TableCell>
+                      <TableCell>Value</TableCell>
+                      <TableCell>Date</TableCell>
+                      <TableCell>Status</TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {filteredMeasurements.map((measurement) => (
+                      <TableRow key={measurement._id}>
+                        <TableCell>{measurement.channel && measurement.channel.type}</TableCell>
+                        <TableCell>{measurement.device && measurement.device.MAC}</TableCell>
+                        <TableCell>{measurement.value}</TableCell>
+                        <TableCell>{formatDate(measurement.timestamp)}</TableCell>
+                        <TableCell>{measurement.status}</TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+              <Link color="primary" href="#" onClick={(e) => e.preventDefault()} sx={{ mt: 3 }}>
+                See more measurements
+              </Link>
+            </Paper>
+          </Grid>
+          <Grid item xs={3}>
+            {/* Filtry po prawej stronie */}
+            <Paper
+              sx={{
+                p: 2,
+                display: 'flex',
+                flexDirection: 'column',
+                height: 500,
+                alignItems: 'center',
+              }}
+            >
+              <Typography variant="h6">Archive Filters</Typography>
+              <div>
+                <FormControlLabel
+                  control={<Checkbox checked={filters.temperature} onChange={handleFilterChange} name="temperature" />}
+                  label="Temperature"
+                />
+              </div>
+              <div>
+                <FormControlLabel
+                  control={<Checkbox checked={filters.humidity} onChange={handleFilterChange} name="humidity" />}
+                  label="Humidity"
+                />
+              </div>
+              <div>
+                <FormControlLabel
+                  control={<Checkbox checked={filters.pressure} onChange={handleFilterChange} name="pressure" />}
+                  label="Pressure"
+                />
+              </div>
+            </Paper>
+          </Grid>
+        </Grid>
+      </div>
+    </>
   );
 };
 

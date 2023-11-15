@@ -24,6 +24,7 @@ import Orders from './Orders';
 import Archive from './Archive'
 import FilterArchive from './FilterArchive';
 import Config from './Config';
+import theme from './theme';
 
 
 function Copyright(props) {
@@ -85,7 +86,7 @@ const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' 
   }),
 );
 
-const defaultTheme = createTheme();
+const defaultTheme = theme;
 
 export default function Dashboard() {
   const [open, setOpen] = React.useState(true);
