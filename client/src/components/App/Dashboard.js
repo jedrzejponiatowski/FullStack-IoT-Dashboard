@@ -23,7 +23,7 @@ import Grid from '@mui/material/Grid';
 import Orders from './Orders';
 import Archive from './Archive'
 import FilterArchive from './FilterArchive';
-
+import Config from './Config';
 
 
 function Copyright(props) {
@@ -113,6 +113,12 @@ export default function Dashboard() {
                 <Chart measurementName="Humidity"/>
             </React.Fragment>
         );
+      case "Config":
+        return (
+            <React.Fragment>
+                <Config/>
+            </React.Fragment>
+        )
       case 'Archive': // Dodano nowy case dla 'Archive'
           return (
             <React.Fragment>

@@ -65,4 +65,20 @@ const MeasurementSchema = new mongoose.Schema({
 
 const Measurement = mongoose.model('Measurement', MeasurementSchema);
 
-module.exports =  {Device, Channel, Measurement}
+
+const ActiveMeasurementsSchema = new mongoose.Schema({
+    device: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Device',
+      required: [true, "Please provide a device ID"],
+    },
+    channel: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Channel',
+      required: [true, "Please provide a channel ID"],
+    },
+  });
+  
+  const ActiveMeasurements = mongoose.model('ActiveMeasurements', ActiveMeasurementsSchema);
+  
+  module.exports = { Device, Channel, Measurement, ActiveMeasurements };
