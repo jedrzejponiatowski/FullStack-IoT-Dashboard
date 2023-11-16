@@ -14,12 +14,12 @@ client.on("connect", () => {
   }, 4000);
 
 
-  
+  /*
   setInterval(() => {
     const data = `{"MAC":"00:1A:2B:3C:4D:00","type":"Temperature","value":${Math.floor(Math.random() * 41)},"timestamp":${Date.now()},"status":"OK"}`;
     client.publish(MQTT_TOPIC_TEMPERATURE, data);
   }, 6000);
-
+*/
   /*
   setInterval(() => {
     const data = `{"MAC":"00:1A:2B:3C:4D:00","type":"Temperature","value":${Math.floor(Math.random() * 41)},"timestamp":${Date.now()},"status":"OK"}`;

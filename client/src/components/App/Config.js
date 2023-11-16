@@ -484,8 +484,8 @@ const handleDeviceDescriptionChange = (event) => {
                 onChange={handleChannelUnitChange}
               >
                 {/* Dodaj elementy do listy wybieralnej jednostek */}
-                <MenuItem value="Volt">Volt</MenuItem>
-                <MenuItem value="Ampere">Ampere</MenuItem>
+                <MenuItem value="Celsius">Celsius</MenuItem>
+                <MenuItem value="Percent">Percent</MenuItem>
                 {/* Dodaj więcej jednostek, jeśli to konieczne */}
               </Select>
             </FormControl>

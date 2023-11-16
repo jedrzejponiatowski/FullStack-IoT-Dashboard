@@ -25,6 +25,8 @@ app.use("/api/active_measurements", require("./routes/ActiveMeasurementRouter"))
 // Importuj modele urządzeń i kanałów
 const {Device, Channel, Measurement, ActiveMeasurements} = require("./models/Measurement");
 
+const temporaryMeasurements = [];
+
 // Error Handler
 app.use(errorHandler);
 
@@ -59,99 +61,109 @@ wss.on("connection", function connection(ws) {
 
 const mqttClient = mqtt.connect(MQTT_BROKER_URL);
 
-const lastMeasurementTimestamps = {}; // Przechowuje ostatni timestamp dla każdego ActiveMeasurement
-
-mqttClient.on("connect", () => {
-  console.log("Connected to MQTT broker");
-
-  mqttClient.subscribe(MQTT_TOPIC, (err) => {
-    if (!err) {
-      console.log(`Subscribed to MQTT topic: ${MQTT_TOPIC}`);
-    }
-  });
-
-  mqttClient.on("message", async (topic, message) => {
-    try {
-      const data = JSON.parse(message);
-
-      // Sprawdź, czy w bazie danych istnieje kanał o określonym typie
-      const channel = await Channel.findOne({ type: data.type });
-
-      // Sprawdź, czy w bazie danych istnieje urządzenie o danym MAC adresie
-      const device = await Device.findOne({ MAC: data.MAC });
-
-      if (device && channel) {
-        // Sprawdź, czy w kolekcji ActiveMeasurements istnieje wpis z danym urządzeniem i kanałem
-        const activeMeasurement = await ActiveMeasurements.findOne({
-          device: device._id,
-          channel: channel._id,
-        });
-
-        if (activeMeasurement) {
-          const currentTime = new Date().getTime();
-          const lastTimestamp = lastMeasurementTimestamps[activeMeasurement._id] || 0;
-
-          // Jeśli minęła już minuta od ostatniego pomiaru, zapisz nowy pomiar
-          if (currentTime - lastTimestamp >= 20000) {
-            const newMeasurement = new Measurement({
-              value: data.value,
+mqttClient.on("connect", async () => {
+    console.log("Connected to MQTT broker");
+  
+    mqttClient.subscribe(MQTT_TOPIC, async (err) => {
+      if (!err) {
+        console.log(`Subscribed to MQTT topic: ${MQTT_TOPIC}`);
+      }
+    });
+  
+    mqttClient.on("message", async (topic, message) => {
+        try {
+          const data = JSON.parse(message);
+      
+          // Sprawdź, czy w bazie danych istnieje kanał o określonym typie
+          const channel = await Channel.findOne({ type: data.type });
+      
+          // Sprawdź, czy w bazie danych istnieje urządzenie o danym MAC adresie
+          const device = await Device.findOne({ MAC: data.MAC });
+      
+          if (device && channel) {
+            // Sprawdź, czy w kolekcji ActiveMeasurements istnieje wpis z danym urządzeniem i kanałem
+            const activeMeasurement = await ActiveMeasurements.findOne({
               device: device._id,
               channel: channel._id,
-              timestamp: currentTime,
-              status: data.status,
             });
-
-            await newMeasurement.save();
-            console.log("Measurement saved to the database.");
-
-            // Zaktualizuj ostatni timestamp
-            lastMeasurementTimestamps[activeMeasurement._id] = currentTime;
+      
+            if (activeMeasurement) {
+              // Znajdź odpowiadający pomiar w tablicy temporaryMeasurements
+              const matchingMeasurement = temporaryMeasurements.find((tempMeasurement) => {
+                return (
+                  tempMeasurement.device.toString() === device._id.toString() &&
+                  tempMeasurement.channel.toString() === channel._id.toString()
+                );
+              });
+      
+              if (matchingMeasurement) {
+                // Aktualizuj wartość pomiaru, zachowaj timestamp
+                matchingMeasurement.value = data.value;
+                matchingMeasurement.status = data.status;
+      
+                console.log("Measurement updated in temporaryMeasurements.");
+              } else {
+                console.error("Matching measurement not found in temporaryMeasurements.");
+              }
+            } else {
+              console.error("ActiveMeasurement not found in the database.");
+            }
+          } else {
+            console.error("Device or Channel not found in the database.");
           }
-        } else {
-          console.error(
-            "Device with the specified MAC or Channel with the specified type not found in the database."
-          );
+        } catch (error) {
+          console.error("Error processing MQTT message: " + error.message);
         }
-      } else {
-        console.error(
-          "Device with the specified MAC or Channel with the specified type not found in the database."
-        );
-      }
-    } catch (error) {
-      console.error("Error processing MQTT message: " + error.message);
-    }
+      });
+  
+    // Połącz się z bazą danych i pobierz aktualne ActiveMeasurements
+    const activeMeasurements = await ActiveMeasurements.find();
+    const currentTime = new Date().getTime(); // Define currentTime here
+  
+    // Wypełnij tablicę temporaryMeasurements
+    temporaryMeasurements.length = 0; // Wyczyść tablicę, aby uniknąć duplikatów
+  
+    activeMeasurements.forEach(activeMeasurement => {
+      temporaryMeasurements.push(new Measurement({
+        value: -99,
+        device: activeMeasurement.device,
+        channel: activeMeasurement.channel,
+        timestamp: currentTime,
+        status: "UNKNOWN",
+      }));
+    });
+  
+    console.log(`${temporaryMeasurements.length} Temporary Measurements initialized.`);
   });
-
-  // Dodaj kod do obsługi przypadku braku pomiaru w danej minucie
+  
   setInterval(async () => {
-    const currentTime = new Date().getTime();
-
-    // Iteruj przez wszystkie ActiveMeasurements
-    for (const activeMeasurementId in lastMeasurementTimestamps) {
-      const lastTimestamp = lastMeasurementTimestamps[activeMeasurementId];
-
-      // Jeśli minęła już minuta od ostatniego pomiaru, zapisz wynik -99 i status UNKNOWN
-      if (currentTime - lastTimestamp >= 20000) {
-        const activeMeasurement = await ActiveMeasurements.findById(activeMeasurementId);
-        if (activeMeasurement) {
-          const newMeasurement = new Measurement({
+    const currentTime = new Date().getTime(); // Define currentTime here
+  
+    // Zapisz tymczasowe measurements do bazy danych co 20 sekund
+    if (temporaryMeasurements.length > 0) {
+      await Measurement.insertMany(temporaryMeasurements);
+      console.log(`${temporaryMeasurements.length} Temporary Measurements saved to the database.`);
+  
+      // Wyczyść tablicę temporaryMeasurements
+      temporaryMeasurements.length = 0;
+  
+      // Ponownie zainicjuj temporaryMeasurements na podstawie aktualnej liczby ActiveMeasurements
+      const activeMeasurements = await ActiveMeasurements.find();
+      activeMeasurements.forEach((activeMeasurement) => {
+        temporaryMeasurements.push(
+          new Measurement({
             value: -99,
             device: activeMeasurement.device,
             channel: activeMeasurement.channel,
             timestamp: currentTime,
             status: "UNKNOWN",
-          });
-
-          await newMeasurement.save();
-          console.log("Default Measurement saved to the database.");
-
-          // Zaktualizuj ostatni timestamp
-          lastMeasurementTimestamps[activeMeasurementId] = currentTime;
-        }
-      }
+          })
+        );
+      });
+  
+      console.log(`${temporaryMeasurements.length} Temporary Measurements re-initialized.`);
     }
   }, 20000);
-});
 
 
 
