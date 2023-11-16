@@ -46,11 +46,11 @@ const Chart = ({ measurementName }) => {
     try {
       const measurementsResponse = await axios.get('/api/measurements');
       const measurementsData = measurementsResponse.data.data;
-
+  
       const filteredMeasurementsData = measurementsData.filter(
         (measurement) => measurement.channel.type === measurementName
       );
-
+  
       if (filteredMeasurementsData.length === 0) {
         const placeholderMeasurement = {
           device: { MAC: 'undefined' },
@@ -59,26 +59,27 @@ const Chart = ({ measurementName }) => {
         };
         filteredMeasurementsData.push(placeholderMeasurement);
       }
-
-      // Dodatkowa filtracja pomiarów starszych niż 1/3/6 minut
+  
+      // Oblicz timestamp, który jest równy teraźniejszemu czasowi minus 3 minuty
       const intervalMilliseconds = parseInt(interval) * 60 * 1000;
       const currentTimestamp = new Date().getTime();
+      const startTime = new Date(currentTimestamp - intervalMilliseconds).toISOString();
+  
       const filteredMeasurements = filteredMeasurementsData.filter(
-        (measurement) => currentTimestamp - new Date(measurement.timestamp).getTime() <= intervalMilliseconds
+        (measurement) => new Date(measurement.timestamp).getTime() >= new Date(startTime).getTime()
       );
-    
+  
       filteredMeasurements.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
-
+  
       const devices = filteredMeasurements.map((measurement) => measurement.device.MAC);
       const uniqueDevices = [...new Set(devices)];
-
+  
       setUniqueDevices(uniqueDevices.slice(0, 4));
-
+  
       if (selectedDevices.length === 0) {
         setSelectedDevices(uniqueDevices.slice(0, 4));
       }
-
-
+  
       const chartData = uniqueDevices.slice(0, 4).map((deviceMAC, index) => {
         return {
           deviceMAC,
@@ -86,12 +87,12 @@ const Chart = ({ measurementName }) => {
             .filter((measurement) => measurement.device.MAC === deviceMAC)
             .map((measurement) => ({
               time: formatDate(measurement.timestamp),
-              amount: measurement.value,
+              amount: measurement.value !== -99 ? measurement.value : null,
             })),
           color: chartColors[index],
         };
       });
-
+  
       setChartData(chartData);
     } catch (error) {
       console.error('Error fetching data:', error);
@@ -119,6 +120,8 @@ const Chart = ({ measurementName }) => {
     setCurrentAxisInterval(Number(interval) * 2);
   };
 
+
+
   return (
     <Grid container spacing={4} style={{ height: '100vh', overflow: 'hidden' }}>
       <CssBaseline />
@@ -135,27 +138,27 @@ const Chart = ({ measurementName }) => {
             Chart
           </Typography>
           <ResponsiveContainer width="100%" height="100%">
-            <LineChart margin={{ top: 50, right: 20, bottom: 50, left: -10 }}>
+            <LineChart margin={{ top: 20, right: 10, bottom: 10, left: 0 }}>
               <CartesianGrid stroke="#bbb" strokeDasharray="3 3" opacity={0.5} />
-              <XAxis dataKey="time" stroke={theme.palette.text.secondary} tick={{ fontSize: 16 }} interval={currentAxisInterval} />
+              <XAxis dataKey="time" stroke={theme.palette.text.secondary} tick={{ fontSize: 16 }}  />
               <YAxis stroke={theme.palette.text.secondary} tick={{ fontSize: 16 }} tickCount={10} domain={[0, 40]} />
               <Legend verticalAlign="top" height={36} />
               {/* Dodajemy Tooltip dla interaktywnego podglądu */}
               <Tooltip content={<CustomTooltip />} />
               {chartData.map((device, index) => (
                 <Line
-                  key={device.deviceMAC}
-                  type="monotone"
-                  dataKey="amount"
-                  data={device.data}
-                  name={device.deviceMAC}
-                  stroke={device.color}
-                  strokeWidth={2}
-                  dot={{ strokeWidth: 2, r: 2 }}
-                  connectNulls={true}
-                  opacity={selectedDevices.includes(device.deviceMAC) ? 1 : 0}
+                    key={device.deviceMAC}
+                    type="monotone"
+                    dataKey="amount"
+                    data={device.data}
+                    name={device.deviceMAC}
+                    stroke={device.color}
+                    strokeWidth={2}
+                    dot={{ strokeWidth: 2, r: 2 }}
+                    connectNulls={false} // Wyłączamy łączenie null
+                    opacity={selectedDevices.includes(device.deviceMAC) ? 1 : 0}
                 />
-              ))}
+                ))}
             </LineChart>
           </ResponsiveContainer>
         </Paper>
