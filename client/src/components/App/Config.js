@@ -87,7 +87,7 @@ const handleDeviceDescriptionChange = (event) => {
       }
   
       // Usuń wszystkie pomiary z bazy danych
-      await axios.delete('/api/measurements');
+      //await axios.delete('/api/measurements');
   
       // Dodaj nowy pomiar do aktywnych pomiarów
       await axios.post('/api/active_measurements', {
@@ -109,7 +109,7 @@ const handleDeviceDescriptionChange = (event) => {
 
   const handleDeleteMeasurement = async (measurementId) => {
     try {
-      await axios.delete('/api/measurements');
+      //await axios.delete('/api/measurements');
       await axios.delete(`/api/active_measurements/${measurementId}`);
 
       const response = await axios.get('/api/active_measurements');

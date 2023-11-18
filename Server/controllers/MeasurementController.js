@@ -38,12 +38,8 @@ exports.getMeasurementsByChannel = async (req, res, next) => {
         .populate('device')
         .exec();
   
-      // Filtrowanie pomiarów, aby uzyskać tylko te z ostatnich 3 minut
-      const currentTimestamp = new Date().getTime();
-      const threeMinutesAgo = currentTimestamp - (3 * 60 * 1000);
       const filteredMeasurements = measurements
-        .filter(measurement => measurement.channel && measurement.channel.type === req.params.channel)
-        .filter(measurement => measurement.timestamp >= threeMinutesAgo);
+        .filter(measurement => measurement.channel && measurement.channel.type === req.params.channel);
   
       console.log("Measurements for channel:", req.params.channel);
       console.log(filteredMeasurements);

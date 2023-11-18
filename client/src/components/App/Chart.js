@@ -28,7 +28,7 @@ const Chart = ({ measurementName }) => {
   const [chartData, setChartData] = useState({ xAxisData: [], yAxisData: [] });
   const [selectedDevices, setSelectedDevices] = useState([]);
   const [uniqueDevices, setUniqueDevices] = useState([]);
-  const [selectedTimeInterval, setSelectedTimeInterval] = useState('1');
+  const [selectedTimeInterval, setSelectedTimeInterval] = useState('3');
   const [currentAxisInterval, setCurrentAxisInterval] = useState(1);
   const [chartColors, setChartColors] = useState([
     '#FF5733', // Pomarańczowy
@@ -43,17 +43,32 @@ const Chart = ({ measurementName }) => {
   
   const fetchData = async (interval, measurementName) => {
     try {
-        const measurementsResponse = await axios.get('/api/measurements');
+        const measurementsResponse = await axios.get(`/api/measurements/channel/${measurementName}`);
         const measurementsData = measurementsResponse.data.data;
+
+        const activeMeasurementsResponse = await axios.get('/api/active_measurements');
+        const activeMeasurementsData = activeMeasurementsResponse.data.data;
+        console.log("Active M:" + activeMeasurementsData);
   
         const currentTimestamp = new Date().getTime();
         const intervalMilliseconds = parseInt(interval) * 60 * 1000;
         const startTime = new Date(currentTimestamp - intervalMilliseconds).toISOString();
   
         const filteredMeasurementsData = measurementsData.filter(
-          (measurement) => measurement.channel.type === measurementName
-            && new Date(measurement.timestamp).getTime() >= new Date(startTime).getTime()
-        );
+            (measurement) => {
+              const activeMeasurementExists = activeMeasurementsData.some(
+                (activeMeasurement) =>
+                  activeMeasurement.device.MAC === measurement.device.MAC &&
+                  activeMeasurement.channel.type === measurement.channel.type
+              );
+      
+              return (
+                measurement.channel.type === measurementName &&
+                new Date(measurement.timestamp).getTime() >= new Date(startTime).getTime() &&
+                activeMeasurementExists
+              );
+            }
+          );
   
         if (filteredMeasurementsData.length === 0) {
           const placeholderMeasurement = {
@@ -89,6 +104,12 @@ const Chart = ({ measurementName }) => {
           color: chartColors[index],
         };
       });
+
+      yAxisData.forEach(deviceData => {
+        const paddingLength = xAxisData.length - deviceData.data.length;
+        deviceData.data = Array(paddingLength).fill(null).concat(deviceData.data);
+      });
+
       console.log(yAxisData[0]);
 
       setChartData({ xAxisData, yAxisData });
