@@ -109,6 +109,7 @@ const handleDeviceDescriptionChange = (event) => {
 
   const handleDeleteMeasurement = async (measurementId) => {
     try {
+      await axios.delete('/api/measurements');
       await axios.delete(`/api/active_measurements/${measurementId}`);
 
       const response = await axios.get('/api/active_measurements');

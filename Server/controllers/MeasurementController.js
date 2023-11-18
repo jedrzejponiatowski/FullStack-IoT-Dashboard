@@ -23,6 +23,39 @@ exports.getMeasurements = async (req, res, next) => {
       next(error);
     }
   };
+
+  // @desc    Pobieranie wszystkich pomiarów z określonego kanału
+// @route   GET /api/measurements/:channel
+// @access  Public
+exports.getMeasurementsByChannel = async (req, res, next) => {
+    try {
+      // Pobierz pomiary z konkretnego kanału i zpopuluj dane urządzenia i kanału
+      const measurements = await Measurement.find()
+        .populate({
+          path: 'channel',
+          match: { type: req.params.channel } // Filtruj po channel.type
+        })
+        .populate('device')
+        .exec();
+  
+      // Filtrowanie pomiarów, aby uzyskać tylko te z ostatnich 3 minut
+      const currentTimestamp = new Date().getTime();
+      const threeMinutesAgo = currentTimestamp - (3 * 60 * 1000);
+      const filteredMeasurements = measurements
+        .filter(measurement => measurement.channel && measurement.channel.type === req.params.channel)
+        .filter(measurement => measurement.timestamp >= threeMinutesAgo);
+  
+      console.log("Measurements for channel:", req.params.channel);
+      console.log(filteredMeasurements);
+  
+      res.status(200).json({
+        success: true,
+        data: filteredMeasurements,
+      });
+    } catch (error) {
+      next(error);
+    }
+  };
   
 
 // @desc    Pobieranie pojedynczego pomiaru na podstawie ID
