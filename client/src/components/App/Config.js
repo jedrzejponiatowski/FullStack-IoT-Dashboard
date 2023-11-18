@@ -31,7 +31,7 @@ const Config = () => {
   const [channels, setChannels] = useState([]);
   const [selectedDeviceName, setSelectedDeviceName] = useState('');
   const [selectedDeviceDescription, setSelectedDeviceDescription] = useState('');
-  const [selectedChannelType, setSelectedChannelType] = useState('');
+   const [selectedChannelType, setSelectedChannelType] = useState('');
     const [selectedChannelDescription, setSelectedChannelDescription] = useState('');
     const [selectedChannelUnit, setSelectedChannelUnit] = useState('');
     const [selectedChannelFactor, setSelectedChannelFactor] = useState('');
@@ -85,9 +85,7 @@ const handleDeviceDescriptionChange = (event) => {
         console.error('Error fetching device or channel id');
         return;
       }
-  
-      // Usuń wszystkie pomiary z bazy danych
-      //await axios.delete('/api/measurements');
+
   
       // Dodaj nowy pomiar do aktywnych pomiarów
       await axios.post('/api/active_measurements', {
@@ -171,10 +169,31 @@ const handleDeviceDescriptionChange = (event) => {
 
   const handleDeleteDevice = async (deviceId) => {
     try {
+      // Pobierz aktywne pomiary dla usuwanego urządzenia
+      const activeMeasurementsResponse = await axios.get('/api/active_measurements');
+      const activeMeasurements = activeMeasurementsResponse.data.data;
+  
+      // Znajdź i usuń powiązane pozycje w aktywnych pomiarach
+      const measurementsToDelete = activeMeasurements.filter(
+        (measurement) => measurement.device._id === deviceId
+      );
+  
+      // Usuń powiązane aktywne pomiary
+      for (const measurementToDelete of measurementsToDelete) {
+        await axios.delete(`/api/active_measurements/${measurementToDelete._id}`);
+      }
+  
+      // Usuń urządzenie
       await axios.delete(`/api/devices/${deviceId}`);
   
-      const response = await axios.get('/api/devices');
-      setDevices(response.data.data);
+      // Zaktualizuj stan urządzeń po usunięciu
+      const deviceResponse = await axios.get('/api/devices');
+      setDevices(deviceResponse.data.data);
+  
+      // Zaktualizuj aktywne pomiary po usunięciu
+      const updatedActiveMeasurementsResponse = await axios.get('/api/active_measurements');
+      const updatedActiveMeasurements = updatedActiveMeasurementsResponse.data.data;
+      setActiveMeasurements(updatedActiveMeasurements);
   
       console.log('Device deleted successfully');
     } catch (error) {
@@ -185,11 +204,31 @@ const handleDeviceDescriptionChange = (event) => {
   // Dodaj tę funkcję na początku komponentu Config
   const handleDeleteChannel = async (channelId) => {
     try {
+      // Pobierz pomiary dla usuwanego kanału
+      const activeMeasurementsResponse = await axios.get('/api/active_measurements');
+      const activeMeasurements = activeMeasurementsResponse.data.data;
+  
+      // Znajdź i usuń powiązane pozycje w pomiarach
+      const measurementsToDelete = activeMeasurements.filter(
+        (measurement) => measurement.channel._id === channelId
+      );
+  
+      // Usuń powiązane aktywne pomiary
+      for (const measurementToDelete of measurementsToDelete) {
+        await axios.delete(`/api/active_measurements/${measurementToDelete._id}`);
+      }
+  
+      // Usuń kanał
       await axios.delete(`/api/channels/${channelId}`);
   
-      // Fetch and update the channels after deleting one
+      // Zaktualizuj stan kanałów po usunięciu
       const channelsResponse = await axios.get('/api/channels');
       setChannels(channelsResponse.data.data);
+  
+      // Zaktualizuj aktywne pomiary po usunięciu
+      const updatedActiveMeasurementsResponse = await axios.get('/api/active_measurements');
+      const updatedActiveMeasurements = updatedActiveMeasurementsResponse.data.data;
+      setActiveMeasurements(updatedActiveMeasurements);
   
       console.log('Channel deleted successfully');
     } catch (error) {
