@@ -299,7 +299,7 @@ const Config = () => {
                                                             <TableCell>
                                                                 <Button
                                                                     variant="contained"
-                                                                    color="secondary"
+                                                                    color="primary"
                                                                     onClick={() => handleDeleteMeasurement(measurement._id)}
                                                                 >
                                                                     Delete
@@ -402,7 +402,7 @@ const Config = () => {
                                                                     <TableCell>
                                                                         <Button
                                                                             variant="contained"
-                                                                            color="secondary"
+                                                                            color="primary"
                                                                             onClick={() => handleDeleteDevice(device._id)}
                                                                         >
                                                                             Delete
@@ -490,7 +490,7 @@ const Config = () => {
                                                                     <TableCell>
                                                                         <Button
                                                                             variant="contained"
-                                                                            color="secondary"
+                                                                            color="primary"
                                                                             onClick={() => handleDeleteChannel(channel._id)}
                                                                         >
                                                                             Delete

@@ -11,28 +11,28 @@ import ConfigIcon from '@mui/icons-material/Settings';
 import ArchiveIcon from '@mui/icons-material/Archive';
 
 const ListItems = ({ handleTabChange }) => {
-  const items = [
-    { icon: <TemperatureIcon />, primary: 'Temperature' },
-    { icon: <HumidityIcon />, primary: 'Humidity' },
-    { icon: <PressureIcon />, primary: 'Pressure' },
-    { icon: <LuminousIcon />, primary: 'Luminous' },
-    { icon: <ConfigIcon />, primary: 'Config' },
-    { icon: <ArchiveIcon />, primary: 'Archive' },
-  ];
+    const items = [
+        { icon: <TemperatureIcon sx={{ color: '#3e2723', fontSize: '30px' }} />, primary: 'Temperature' },
+        { icon: <HumidityIcon sx={{ color: '#6d4c41', fontSize: '30px' }} />, primary: 'Humidity' },
+        { icon: <PressureIcon sx={{ color: '#8d6e63', fontSize: '30px' }} />, primary: 'Pressure' },
+        { icon: <LuminousIcon sx={{ color: '#3e2723', fontSize: '30px' }} />, primary: 'Luminous' },
+        { icon: <ConfigIcon sx={{ color: '#6d4c41', fontSize: '30px' }} />, primary: 'Config' },
+        { icon: <ArchiveIcon sx={{ color: '#8d6e63', fontSize: '30px' }} />, primary: 'Archive' },
+      ];
 
-  return (
-    <React.Fragment>
-      {items.map((item) => (
-        <ListItemButton
-          key={item.primary}
-          onClick={() => handleTabChange(item.primary)}
-        >
-          <ListItemIcon>{item.icon}</ListItemIcon>
-          <ListItemText primary={item.primary} />
-        </ListItemButton>
-      ))}
-    </React.Fragment>
-  );
+    return (
+        <React.Fragment>
+            {items.map((item) => (
+                <ListItemButton
+                    key={item.primary}
+                    onClick={() => handleTabChange(item.primary)}
+                >
+                    <ListItemIcon>{item.icon}</ListItemIcon>
+                    <ListItemText primary={item.primary} />
+                </ListItemButton>
+            ))}
+        </React.Fragment>
+    );
 };
 
 export default ListItems;

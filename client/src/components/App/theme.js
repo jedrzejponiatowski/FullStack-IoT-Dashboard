@@ -3,15 +3,15 @@ import { createTheme } from '@mui/material/styles';
 const theme = createTheme({
   palette: {
     primary: {
-      main: '#00796b', // Twój niestandardowy kolor główny
-      light: '#48a999',
-      dark: '#004c40',
+      main: '#8d6e63', // Twój niestandardowy kolor główny
+      light: '#bcaaa4',
+      dark: '#4e342e',
       contrastText: '#ffffff',
     },
     secondary: {
-      main: '#a1887f', // Twój niestandardowy kolor drugorzędny
-      light: '#d3b8ae',
-      dark: '#725b56',
+      main: '#6d4c41', // Twój niestandardowy kolor drugorzędny
+      light: '#a1887f',
+      dark: '#3e2723',
       contrastText: '#ffffff',
     },
     error: {

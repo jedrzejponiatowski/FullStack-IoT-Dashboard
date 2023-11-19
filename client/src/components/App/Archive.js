@@ -97,29 +97,30 @@ const Archive = () => {
                                 display: 'flex',
                                 flexDirection: 'column',
                                 height: 570,
+                                boxShadow: '5px 5px 25px rgba(0, 0, 0, 0.3)',
                             }}
                         >
-                            <Typography variant="h6" align='center' fontFamily='serif' gutterBottom style={{  marginBottom: '15px' }}>
+                            <Typography variant="h6" align='center' fontFamily='serif' gutterBottom style={{ marginBottom: '15px' }}>
                                 Measurement Archive
                             </Typography>
-                            <TableContainer marginTop='1' >
+                            <TableContainer marginTop='1'>
                                 <Table size="small">
                                     <TableHead>
                                         <TableRow>
-                                            <TableCell sx={{ fontFamily: 'serif', fontSize: '16px' }}>Channel Type</TableCell>
-                                            <TableCell sx={{ fontFamily: 'serif', fontSize: '16px' }}>Device Name</TableCell>
-                                            <TableCell sx={{ fontFamily: 'serif', fontSize: '16px' }}>Value</TableCell>
-                                            <TableCell sx={{ fontFamily: 'serif', fontSize: '16px' }}>Date</TableCell>
-                                            <TableCell sx={{ fontFamily: 'serif', fontSize: '16px' }}>Status</TableCell>
+                                            <TableCell sx={{ fontFamily: 'serif', fontSize: '16px', borderBottom: '1px solid #000', borderTop: '1px solid #000', borderRight: '1px solid #C0C0C0' }}>Channel Type</TableCell>
+                                            <TableCell sx={{ fontFamily: 'serif', fontSize: '16px', borderBottom: '1px solid #000', borderTop: '1px solid #000', borderRight: '1px solid #C0C0C0' }}>Device Name</TableCell>
+                                            <TableCell sx={{ fontFamily: 'serif', fontSize: '16px', borderBottom: '1px solid #000', borderTop: '1px solid #000', borderRight: '1px solid #C0C0C0' }}>Value</TableCell>
+                                            <TableCell sx={{ fontFamily: 'serif', fontSize: '16px', borderBottom: '1px solid #000', borderTop: '1px solid #000', borderRight: '1px solid #C0C0C0' }}>Date</TableCell>
+                                            <TableCell sx={{ fontFamily: 'serif', fontSize: '16px', borderBottom: '1px solid #000', borderTop: '1px solid #000', }}>Status</TableCell>
                                         </TableRow>
                                     </TableHead>
                                     <TableBody>
                                         {filteredMeasurements.slice().reverse().map((measurement) => (
                                             <TableRow key={measurement._id}>
-                                                <TableCell>{measurement.channel && measurement.channel.type}</TableCell>
-                                                <TableCell>{measurement.device && measurement.device.name}</TableCell>
-                                                <TableCell>{measurement.value}</TableCell>
-                                                <TableCell>{formatDate(measurement.timestamp)}</TableCell>
+                                                <TableCell sx={{ borderRight: '1px solid #C0C0C0' }}>{measurement.channel && measurement.channel.type}</TableCell>
+                                                <TableCell sx={{ borderRight: '1px solid #C0C0C0' }}>{measurement.device && measurement.device.name}</TableCell>
+                                                <TableCell sx={{ borderRight: '1px solid #C0C0C0' }}>{measurement.value}</TableCell>
+                                                <TableCell sx={{ borderRight: '1px solid #C0C0C0' }}>{formatDate(measurement.timestamp)}</TableCell>
                                                 <TableCell>{measurement.status}</TableCell>
                                             </TableRow>
                                         ))}
@@ -136,32 +137,40 @@ const Archive = () => {
                                 display: 'flex',
                                 flexDirection: 'column',
                                 height: 570,
-                                alignItems: 'left',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                boxShadow: '5px 5px 25px rgba(0, 0, 0, 0.3)',
                             }}
                         >
-                            <Typography variant="h6" align='center' fontFamily='serif' gutterBottom style={{ marginBottom: '30px' }} >Archive Filters </Typography>
-                            <div>
+                            <Typography variant="h6" align="center" fontFamily="serif" gutterBottom style={{ marginTop: '-50px', marginBottom: '30px' }}>
+                                Archive Filters
+                            </Typography>
+                            <div style={{ width: '100%', marginBottom: '10px', marginLeft: '50px' }}>
                                 <FormControlLabel
                                     control={<Checkbox checked={filters.temperature} onChange={handleFilterChange} name="temperature" />}
                                     label="Temperature"
+                                    style={{ width: '100%', display: 'flex', alignItems: 'center' }}
                                 />
                             </div>
-                            <div>
+                            <div style={{ width: '100%', marginBottom: '10px', marginLeft: '50px' }}>
                                 <FormControlLabel
                                     control={<Checkbox checked={filters.humidity} onChange={handleFilterChange} name="humidity" />}
                                     label="Humidity"
+                                    style={{ width: '100%', display: 'flex', alignItems: 'center' }}
                                 />
                             </div>
-                            <div>
+                            <div style={{ width: '100%', marginBottom: '10px', marginLeft: '50px'}}>
                                 <FormControlLabel
                                     control={<Checkbox checked={filters.pressure} onChange={handleFilterChange} name="pressure" />}
                                     label="Pressure"
+                                    style={{ width: '100%', display: 'flex', alignItems: 'center' }}
                                 />
                             </div>
-                            <div>
+                            <div style={{ width: '100%' , marginLeft: '50px'}}>
                                 <FormControlLabel
                                     control={<Checkbox checked={filters.luminous} onChange={handleFilterChange} name="luminous" />}
                                     label="Luminous"
+                                    style={{ width: '100%', display: 'flex', alignItems: 'center' }}
                                 />
                             </div>
                         </Paper>
