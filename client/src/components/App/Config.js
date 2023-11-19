@@ -271,7 +271,7 @@ const Config = () => {
 
     return (
         <React.Fragment>
-            <Box sx={{ bgcolor: 'white', p: 3, height: 580 }}>
+            <Box sx={{ bgcolor: 'white', p: 3, height: 580, boxShadow: '5px 5px 25px rgba(0, 0, 0, 0.4)', }}>
                 <Tabs value={activeTab} onChange={handleTabChange} centered>
                     <Tab label="Active Measurements" />
                     <Tab label="Manage Resources" />
@@ -281,21 +281,21 @@ const Config = () => {
                         <React.Fragment>
                             <Grid container spacing={4}>
                                 <Grid item xs={8}>
-                                    <Paper sx={{ p: 2, display: 'flex', flexDirection: 'column', height: 470 }}>
+                                    <Paper sx={{ p: 2, display: 'flex', flexDirection: 'column', height: 470, boxShadow: '5px 5px 10px rgba(0, 0, 0, 0.2)', }}>
                                         <TableContainer>
                                             <Table size="small">
                                                 <TableHead>
                                                     <TableRow>
-                                                        <TableCell sx={{ fontFamily: 'serif', fontSize: '16px' }}>Device Name</TableCell>
-                                                        <TableCell sx={{ fontFamily: 'serif', fontSize: '16px' }}>Channel Type</TableCell>
-                                                        <TableCell sx={{ fontFamily: 'serif', fontSize: '16px' }}>Action</TableCell>
+                                                        <TableCell sx={{ fontFamily: 'serif', fontSize: '16px', borderBottom: '1px solid #808080', borderTop: '1px solid #808080', borderRight: '1px solid #C0C0C0' }}>Device Name</TableCell>
+                                                        <TableCell sx={{ fontFamily: 'serif', fontSize: '16px', borderBottom: '1px solid #808080', borderTop: '1px solid #808080', borderRight: '1px solid #C0C0C0' }}>Channel Type</TableCell>
+                                                        <TableCell sx={{ fontFamily: 'serif', fontSize: '16px', borderBottom: '1px solid #808080', borderTop: '1px solid #808080' }}>Action</TableCell>
                                                     </TableRow>
                                                 </TableHead>
                                                 <TableBody>
                                                     {activeMeasurements.map((measurement) => (
                                                         <TableRow key={measurement._id}>
-                                                            <TableCell>{measurement.device?.name || 'N/A'}</TableCell>
-                                                            <TableCell>{measurement.channel?.type || 'N/A'}</TableCell>
+                                                            <TableCell sx={{ borderRight: '1px solid #C0C0C0' }}>{measurement.device?.name || 'N/A'}</TableCell>
+                                                            <TableCell sx={{ borderRight: '1px solid #C0C0C0' }}>{measurement.channel?.type || 'N/A'}</TableCell>
                                                             <TableCell>
                                                                 <Button
                                                                     variant="contained"
@@ -313,7 +313,7 @@ const Config = () => {
                                     </Paper>
                                 </Grid>
                                 <Grid item xs={4}>
-                                    <Paper sx={{ p: 2, display: 'flex', flexDirection: 'column', height: 470 }}>
+                                    <Paper sx={{ p: 2, display: 'flex', flexDirection: 'column', height: 470, boxShadow: '5px 5px 10px rgba(0, 0, 0, 0.2)' }}>
                                         <Typography variant="h6" align='center' fontFamily='serif' gutterBottom style={
                                             { marginTop: '20px', marginBottom: '15px' }}>
                                             Add Active Measurement
@@ -382,23 +382,23 @@ const Config = () => {
                                 <React.Fragment>
                                     <Grid container spacing={4}>
                                         <Grid item xs={8}>
-                                            <Paper sx={{ p: 2, display: 'flex', flexDirection: 'column', height: 413, marginTop: 1 }}>
+                                            <Paper sx={{ p: 2, display: 'flex', flexDirection: 'column', height: 413, marginTop: 1, boxShadow: '5px 5px 10px rgba(0, 0, 0, 0.2)' }}>
                                                 <TableContainer>
                                                     <Table size="small">
                                                         <TableHead>
                                                             <TableRow>
-                                                                <TableCell sx={{ fontFamily: 'serif', fontSize: '16px' }}>Device MAC</TableCell>
-                                                                <TableCell sx={{ fontFamily: 'serif', fontSize: '16px' }}>Device Name</TableCell>
-                                                                <TableCell sx={{ fontFamily: 'serif', fontSize: '16px' }}>Description</TableCell>
-                                                                <TableCell sx={{ fontFamily: 'serif', fontSize: '16px' }}>Action</TableCell>
+                                                                <TableCell sx={{ fontFamily: 'serif', fontSize: '16px', borderBottom: '1px solid #808080', borderTop: '1px solid #808080', borderRight: '1px solid #C0C0C0' }}>Device MAC</TableCell>
+                                                                <TableCell sx={{ fontFamily: 'serif', fontSize: '16px', borderBottom: '1px solid #808080', borderTop: '1px solid #808080', borderRight: '1px solid #C0C0C0' }}>Device Name</TableCell>
+                                                                <TableCell sx={{ fontFamily: 'serif', fontSize: '16px', borderBottom: '1px solid #808080', borderTop: '1px solid #808080', borderRight: '1px solid #C0C0C0' }}>Description</TableCell>
+                                                                <TableCell sx={{ fontFamily: 'serif', fontSize: '16px', borderBottom: '1px solid #808080', borderTop: '1px solid #808080' }}>Action</TableCell>
                                                             </TableRow>
                                                         </TableHead>
                                                         <TableBody>
                                                             {devices.map((device) => (
                                                                 <TableRow key={device._id}>
-                                                                    <TableCell>{device.MAC}</TableCell>
-                                                                    <TableCell>{device.name}</TableCell>
-                                                                    <TableCell>{device.description}</TableCell>
+                                                                    <TableCell sx={{ borderRight: '1px solid #C0C0C0' }}>{device.MAC}</TableCell>
+                                                                    <TableCell sx={{ borderRight: '1px solid #C0C0C0' }}>{device.name}</TableCell>
+                                                                    <TableCell sx={{ borderRight: '1px solid #C0C0C0' }}>{device.description}</TableCell>
                                                                     <TableCell>
                                                                         <Button
                                                                             variant="contained"
@@ -416,7 +416,7 @@ const Config = () => {
                                             </Paper>
                                         </Grid>
                                         <Grid item xs={4}>
-                                            <Paper sx={{ p: 2, display: 'flex', flexDirection: 'column', height: 413, marginTop: 1 }}>
+                                            <Paper sx={{ p: 2, display: 'flex', flexDirection: 'column', height: 470, marginTop: -6, boxShadow: '5px 5px 10px rgba(0, 0, 0, 0.2)' }}>
                                                 <Typography variant="h6" align='center' fontFamily='serif' gutterBottom style={
                                                     { marginTop: '10px' }}>
                                                     Add Device
@@ -468,25 +468,25 @@ const Config = () => {
                                     <Grid container spacing={4}>
                                         {/* Lista kanałów */}
                                         <Grid item xs={8}>
-                                            <Paper sx={{ p: 2, display: 'flex', flexDirection: 'column', height: 400, marginTop: 1 }}>
+                                            <Paper sx={{ p: 2, display: 'flex', flexDirection: 'column', height: 413, marginTop: 1, boxShadow: '5px 5px 10px rgba(0, 0, 0, 0.2)' }}>
                                                 <TableContainer>
                                                     <Table size="small">
                                                         <TableHead>
                                                             <TableRow>
-                                                                <TableCell>Type</TableCell>
-                                                                <TableCell>Description</TableCell>
-                                                                <TableCell>Unit</TableCell>
-                                                                <TableCell>Factor</TableCell>
-                                                                <TableCell>Action</TableCell>
+                                                                <TableCell sx={{ fontFamily: 'serif', fontSize: '16px', borderBottom: '1px solid #808080', borderTop: '1px solid #808080', borderRight: '1px solid #C0C0C0' }}>Type</TableCell>
+                                                                <TableCell sx={{ fontFamily: 'serif', fontSize: '16px', borderBottom: '1px solid #808080', borderTop: '1px solid #808080', borderRight: '1px solid #C0C0C0' }}>Description</TableCell>
+                                                                <TableCell sx={{ fontFamily: 'serif', fontSize: '16px', borderBottom: '1px solid #808080', borderTop: '1px solid #808080', borderRight: '1px solid #C0C0C0' }}>Unit</TableCell>
+                                                                <TableCell sx={{ fontFamily: 'serif', fontSize: '16px', borderBottom: '1px solid #808080', borderTop: '1px solid #808080', borderRight: '1px solid #C0C0C0' }}>Factor</TableCell>
+                                                                <TableCell sx={{ fontFamily: 'serif', fontSize: '16px', borderBottom: '1px solid #808080', borderTop: '1px solid #808080' }}>Action</TableCell>
                                                             </TableRow>
                                                         </TableHead>
                                                         <TableBody>
                                                             {channels.map((channel) => (
                                                                 <TableRow key={channel._id}>
-                                                                    <TableCell>{channel.type}</TableCell>
-                                                                    <TableCell>{channel.description}</TableCell>
-                                                                    <TableCell>{channel.unit}</TableCell>
-                                                                    <TableCell>{channel.factor}</TableCell>
+                                                                    <TableCell sx={{ borderRight: '1px solid #C0C0C0' }}>{channel.type}</TableCell>
+                                                                    <TableCell sx={{ borderRight: '1px solid #C0C0C0' }}>{channel.description}</TableCell>
+                                                                    <TableCell sx={{ borderRight: '1px solid #C0C0C0' }}>{channel.unit}</TableCell>
+                                                                    <TableCell sx={{ borderRight: '1px solid #C0C0C0' }}>{channel.factor}</TableCell>
                                                                     <TableCell>
                                                                         <Button
                                                                             variant="contained"
@@ -505,7 +505,11 @@ const Config = () => {
                                         </Grid>
                                         {/* Opcje do dodawania nowych kanałów */}
                                         <Grid item xs={4}>
-                                            <Paper sx={{ p: 2, display: 'flex', flexDirection: 'column', height: 400, marginTop: 1 }}>
+                                            <Paper sx={{ p: 2, display: 'flex', flexDirection: 'column', height: 470, marginTop: -6, boxShadow: '5px 5px 10px rgba(0, 0, 0, 0.2)' }}>
+                                            <Typography variant="h6" align='center' fontFamily='serif' gutterBottom style={
+                                                    { marginTop: '10px' }}>
+                                                    Add Channel
+                                                </Typography>
                                                 <Box sx={{ bgcolor: 'white', p: 3 }}>
                                                     <FormControl fullWidth sx={{ mb: 2 }}>
                                                         <InputLabel id="type-label">Type</InputLabel>

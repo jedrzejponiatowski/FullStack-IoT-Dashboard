@@ -107,11 +107,11 @@ const Archive = () => {
                                 <Table size="small">
                                     <TableHead>
                                         <TableRow>
-                                            <TableCell sx={{ fontFamily: 'serif', fontSize: '16px', borderBottom: '1px solid #000', borderTop: '1px solid #000', borderRight: '1px solid #C0C0C0' }}>Channel Type</TableCell>
-                                            <TableCell sx={{ fontFamily: 'serif', fontSize: '16px', borderBottom: '1px solid #000', borderTop: '1px solid #000', borderRight: '1px solid #C0C0C0' }}>Device Name</TableCell>
-                                            <TableCell sx={{ fontFamily: 'serif', fontSize: '16px', borderBottom: '1px solid #000', borderTop: '1px solid #000', borderRight: '1px solid #C0C0C0' }}>Value</TableCell>
-                                            <TableCell sx={{ fontFamily: 'serif', fontSize: '16px', borderBottom: '1px solid #000', borderTop: '1px solid #000', borderRight: '1px solid #C0C0C0' }}>Date</TableCell>
-                                            <TableCell sx={{ fontFamily: 'serif', fontSize: '16px', borderBottom: '1px solid #000', borderTop: '1px solid #000', }}>Status</TableCell>
+                                            <TableCell sx={{ fontFamily: 'serif', fontSize: '16px', borderBottom: '1px solid #808080', borderTop: '1px solid #808080', borderRight: '1px solid #C0C0C0' }}>Channel Type</TableCell>
+                                            <TableCell sx={{ fontFamily: 'serif', fontSize: '16px', borderBottom: '1px solid #808080', borderTop: '1px solid #808080', borderRight: '1px solid #C0C0C0' }}>Device Name</TableCell>
+                                            <TableCell sx={{ fontFamily: 'serif', fontSize: '16px', borderBottom: '1px solid #808080', borderTop: '1px solid #808080', borderRight: '1px solid #C0C0C0' }}>Value</TableCell>
+                                            <TableCell sx={{ fontFamily: 'serif', fontSize: '16px', borderBottom: '1px solid #808080', borderTop: '1px solid #808080', borderRight: '1px solid #C0C0C0' }}>Date</TableCell>
+                                            <TableCell sx={{ fontFamily: 'serif', fontSize: '16px', borderBottom: '1px solid #808080', borderTop: '1px solid #808080', }}>Status</TableCell>
                                         </TableRow>
                                     </TableHead>
                                     <TableBody>

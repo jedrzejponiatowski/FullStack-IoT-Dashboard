@@ -17,13 +17,10 @@ import NotificationsIcon from '@mui/icons-material/Notifications';
 import Chart from './Chart';
 import ListItems from './listItems';
 import Link from '@mui/material/Link';
-import Paper from '@mui/material/Paper'; // Dodano import Paper
-import Deposits from './Deposits';
-import Grid from '@mui/material/Grid';
-import Orders from './Orders';
 import Archive from './Archive'
 import Config from './Config';
 import theme from './theme';
+
 
 
 function Copyright(props) {
