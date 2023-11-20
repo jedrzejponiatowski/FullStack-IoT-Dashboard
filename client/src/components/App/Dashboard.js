@@ -27,11 +27,7 @@ function Copyright(props) {
     return (
         <Typography variant="body2" color="text.secondary" align="center" {...props}>
             {'Copyright © '}
-            <Link color="inherit" href="https://mui.com/">
-                Your Website
-            </Link>{' '}
-            {new Date().getFullYear()}
-            {'.'}
+        Dashboard
         </Typography>
     );
 }
@@ -144,7 +140,7 @@ export default function Dashboard() {
                         <Typography variant="body1" paragraph>
                             Customize this section with your content.
                         </Typography>
-                        <Copyright sx={{ pt: 4 }} />
+                        
                     </React.Fragment>
                 );
         }
