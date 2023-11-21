@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import dayjs from 'dayjs';
 import {
     useTheme,
     Checkbox,
@@ -11,6 +12,7 @@ import {
     Grid,
     Typography,
     CssBaseline,
+    Button,
 } from '@mui/material';
 import {
     LineChart,
@@ -20,7 +22,7 @@ import {
     CartesianGrid,
     Legend,
     Tooltip,
-    Line,
+    Line
 } from 'recharts';
 import {
     Select,
@@ -32,6 +34,7 @@ import { DemoContainer } from '@mui/x-date-pickers/internals/demo';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+import { TimePicker } from '@mui/x-date-pickers/TimePicker';
 
 const Chart = ({ measurementName }) => {
     const theme = useTheme();
@@ -43,8 +46,9 @@ const Chart = ({ measurementName }) => {
     const [selectedTimeInterval, setSelectedTimeInterval] = useState('3');
     const [currentAxisInterval, setCurrentAxisInterval] = useState(1);
     const [activeMeasurementsData, setActiveMeasurementsData] = useState([]);
-    const [startDate, setStartDate] = useState(new Date());
-    const [endDate, setEndDate] = useState(new Date());
+    const [selectedDate, setSelectedDate] = useState(new Date());
+    const [startTime, setStartTime] = useState(new Date());
+    const [endTime, setEndTime] = useState(new Date());
     const [chartColors, setChartColors] = useState([
         '#FF5733', // Pomarańczowy
         '#34A853', // Zielony
@@ -54,6 +58,7 @@ const Chart = ({ measurementName }) => {
 
     useEffect(() => {
         fetchData(selectedTimeInterval, measurementName);
+        console.log(selectedDevices);
     }, [, selectedDevices, selectedTimeInterval, measurementName]);
 
     const fetchData = async (interval, measurementName) => {
@@ -99,9 +104,9 @@ const Chart = ({ measurementName }) => {
 
             if (selectedChannel[0] !== "default") {
                 const devicesForSelectedChannel = activeMeasurementsData
-                .filter(activeMeasurement => activeMeasurement.channel.type === selectedChannel[0])
-                .map(activeMeasurement => activeMeasurement.device.MAC);
-            
+                    .filter(activeMeasurement => activeMeasurement.channel.type === selectedChannel[0])
+                    .map(activeMeasurement => activeMeasurement.device.MAC);
+
                 setUniqueDevices(devicesForSelectedChannel);
             } else {
                 setUniqueDevices([]);
@@ -134,8 +139,6 @@ const Chart = ({ measurementName }) => {
                 deviceData.data = Array(paddingLength).fill(null).concat(deviceData.data);
             });
 
-            console.log("sel dev:" + selectedDevices);
-
             setChartData({ xAxisData, yAxisData });
         } catch (error) {
             console.error('Error fetching data:', error);
@@ -156,7 +159,6 @@ const Chart = ({ measurementName }) => {
             const devicesForSelectedChannel = activeMeasurementsData
                 .filter(activeMeasurement => activeMeasurement.channel.type === selectedChannel[0])
                 .map(activeMeasurement => activeMeasurement.device.MAC);
-            console.log("selected dev: " + devicesForSelectedChannel);
             setUniqueDevices(devicesForSelectedChannel);
         } else {
             // Jeśli wybrany kanał to "default", wyczyść listę wybranych urządzeń
@@ -172,6 +174,7 @@ const Chart = ({ measurementName }) => {
     };
 
     const handleCheckboxChange = (deviceMAC) => {
+
         setSelectedDevices((prevSelectedDevices) => {
             if (prevSelectedDevices.includes(deviceMAC)) {
                 // Jeśli urządzenie jest już zaznaczone, usuń je z listy
@@ -181,6 +184,13 @@ const Chart = ({ measurementName }) => {
                 return [...prevSelectedDevices, deviceMAC];
             }
         });
+        //console.log(selectedDevices);
+    };
+
+    const handleSave = () => {
+        console.log(selectedDate);
+        console.log(startTime);
+        console.log(endTime);
     };
 
     const handleTimeIntervalChange = (interval) => {
@@ -287,8 +297,8 @@ const Chart = ({ measurementName }) => {
                             labelId="device-select-label"
                             id="device-select"
                             multiple
-                            value={["Select Devices"]}
-                            onChange={(event) => handleDeviceChange(event.target.value)}
+                            value={selectedDevices} // Change this line
+                            //onChange={(event) => handleDeviceChange([event.target.value])}
                             renderValue={(selected) => (
                                 selected.includes("SelectDevice") ? "Select Device" : selected.join(", ")
                             )}
@@ -308,7 +318,7 @@ const Chart = ({ measurementName }) => {
                                         checked={selectedDevices.includes(deviceMAC)}
                                         onChange={() => handleCheckboxChange(deviceMAC)}
                                     />
-                                    <ListItemText primary={deviceMAC} onClick={() => handleCheckboxChange(deviceMAC)} />
+                                    <ListItemText primary={deviceMAC} />
                                 </MenuItem>
                             ))}
                         </Select>
@@ -317,14 +327,40 @@ const Chart = ({ measurementName }) => {
                     <Typography variant="h6" gutterBottom component="div" style={{ marginTop: '16px' }}>
                         Date Range
                     </Typography>
+
                     <LocalizationProvider dateAdapter={AdapterDayjs}>
                         <DemoContainer components={['DatePicker']}>
                             <DatePicker
-                                label="Pick the date"
-                                disabled={selectedDevices.length === 0}
+                                label="Controlled picker"
+                                //value={pickedDate}
+                                onChange={(newValue) => setSelectedDate(newValue)}
                             />
                         </DemoContainer>
                     </LocalizationProvider>
+
+                    <LocalizationProvider dateAdapter={AdapterDayjs}>
+                        <DemoContainer components={['DatePicker']}>
+                            <TimePicker
+                                label="Start Time"
+                                //value={value}
+                                onChange={(newValue) => setStartTime(newValue)}
+                            />
+                        </DemoContainer>
+                    </LocalizationProvider>
+
+                    <LocalizationProvider dateAdapter={AdapterDayjs}>
+                        <DemoContainer components={['DatePicker']}>
+                            <TimePicker
+                                label="End Time"
+                                //value={value}
+                                onChange={(newValue) => setEndTime(newValue)}
+                            />
+                        </DemoContainer>
+                    </LocalizationProvider>
+
+                    <Button variant="contained" color="primary" onClick={handleSave} disabled={selectedDevices.length === 0}>
+                        Submit
+                    </Button>
                 </Paper>
             </Grid>
         </Grid>
