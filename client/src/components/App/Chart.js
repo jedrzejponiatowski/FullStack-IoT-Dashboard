@@ -49,6 +49,7 @@ const Chart = ({ measurementName }) => {
     const [selectedDate, setSelectedDate] = useState(new Date());
     const [startTime, setStartTime] = useState(new Date());
     const [endTime, setEndTime] = useState(new Date());
+    const [readyToPlot, setReadyToPlot] = useState(false);
     const [chartColors, setChartColors] = useState([
         '#FF5733', // Pomarańczowy
         '#34A853', // Zielony
@@ -57,47 +58,21 @@ const Chart = ({ measurementName }) => {
     ]);
 
     useEffect(() => {
-        fetchData(selectedTimeInterval, measurementName);
-        console.log(selectedDevices);
-    }, [, selectedDevices, selectedTimeInterval, measurementName]);
+        fetchData(selectedChannel, startTime, endTime);
+        //console.log(selectedDevices);
+    }, [selectedDevices]);
 
-    const fetchData = async (interval, measurementName) => {
+    const fetchData = async (channel, _startTime, _endTime) => {
         try {
-            const measurementsResponse = await axios.get(`/api/measurements/channel/${measurementName}`);
-            const measurementsData = measurementsResponse.data.data;
+            console.log("****");
+            //console.log(String(channel));
+            //console.log(Number(startTime));
+            //console.log(Number(endTime));
 
             const activeMeasurementsResponse = await axios.get('/api/active_measurements');
+
             const activeMeasurementsData = activeMeasurementsResponse.data.data;
             setActiveMeasurementsData(activeMeasurementsData);
-
-            const currentTimestamp = new Date().getTime();
-            const intervalMilliseconds = parseInt(interval) * 60 * 1000;
-            const startTime = new Date(currentTimestamp - intervalMilliseconds).toISOString();
-
-            const filteredMeasurementsData = measurementsData.filter(
-                (measurement) => {
-                    const activeMeasurementExists = activeMeasurementsData.some(
-                        (activeMeasurement) =>
-                            activeMeasurement.device.MAC === measurement.device.MAC &&
-                            activeMeasurement.channel.type === measurement.channel.type
-                    );
-
-                    return (
-                        measurement.channel.type === measurementName &&
-                        new Date(measurement.timestamp).getTime() >= new Date(startTime).getTime() &&
-                        activeMeasurementExists
-                    );
-                }
-            );
-
-            if (filteredMeasurementsData.length === 0) {
-                const placeholderMeasurement = {
-                    device: { MAC: 'undefined' },
-                    value: 0,
-                    timestamp: new Date().toISOString(),
-                };
-                filteredMeasurementsData.push(placeholderMeasurement);
-            }
 
             const uniqueChannels = [...new Set(activeMeasurementsData.map(activeMeasurement => activeMeasurement.channel.type))];
             setUniqueChannels(uniqueChannels);
@@ -112,34 +87,83 @@ const Chart = ({ measurementName }) => {
                 setUniqueDevices([]);
             }
 
+            if (readyToPlot) {
+                console.log("aaa");
+                const Achannel = 'Temperature';
+                const currentTime = new Date().getTime();
+                const fiveMinutesAgo = currentTime - 5 * 60 * 1000;
+                const AstartTime = new Date(fiveMinutesAgo);
+                const AendTime = new Date(currentTime);
+                console.log(Number(AstartTime));
 
+                const measurementsResponse = await axios.get('/api/measurements/filtered', {
+                    params: {
+                        channel: Achannel,
+                        startTime: Number(AstartTime),
+                        endTime: Number(AendTime),
+                    },
+                });
+                console.log(measurementsResponse);
 
+                const measurementsData = measurementsResponse.data.data;
 
-            const uniqueTimestamps = Array.from(new Set(filteredMeasurementsData.map((measurement) => measurement.timestamp)));
+                const filteredMeasurementsData = measurementsData.filter(
+                    (measurement) => {
+                        const activeMeasurementExists = activeMeasurementsData.some(
+                            (activeMeasurement) =>
+                                activeMeasurement.device.MAC === measurement.device.MAC
+                        );
 
-            // Przygotowywanie danych dla wykresu
-            const xAxisData = uniqueTimestamps.map((timestamp) => formatDate(timestamp));
+                        // Dodaj warunek, aby sprawdzić, czy MAC adres istnieje w selectedDevices
+                        const isDeviceSelected = selectedDevices.includes(measurement.device.MAC);
 
+                        return (
+                            measurement.channel.type === measurementName &&
+                            new Date(measurement.timestamp).getTime() >= new Date(startTime).getTime() &&
+                            activeMeasurementExists &&
+                            isDeviceSelected
+                        );
+                    }
+                );
 
-            const yAxisData = uniqueDevices.map((deviceMAC, index) => {
-                const deviceMeasurements = filteredMeasurementsData
-                    .filter((measurement) => measurement.device.MAC === deviceMAC);
+                if (filteredMeasurementsData.length === 0) {
+                    const placeholderMeasurement = {
+                        device: { MAC: 'undefined' },
+                        value: 0,
+                        timestamp: new Date().toISOString(),
+                    };
+                    filteredMeasurementsData.push(placeholderMeasurement);
+                }
 
-                return {
-                    deviceMAC,
-                    data: deviceMeasurements.map((measurement) => (
-                        measurement.value !== -99 ? measurement.value : null
-                    )),
-                    color: chartColors[index],
-                };
-            });
+                const uniqueTimestamps = Array.from(new Set(filteredMeasurementsData.map((measurement) => measurement.timestamp)));
 
-            yAxisData.forEach(deviceData => {
-                const paddingLength = xAxisData.length - deviceData.data.length;
-                deviceData.data = Array(paddingLength).fill(null).concat(deviceData.data);
-            });
+                // Przygotowywanie danych dla wykresu
+                const xAxisData = uniqueTimestamps.map((timestamp) => formatDate(timestamp));
 
-            setChartData({ xAxisData, yAxisData });
+                const yAxisData = uniqueDevices.map((deviceMAC, index) => {
+                    const deviceMeasurements = filteredMeasurementsData
+                        .filter((measurement) => measurement.device.MAC === deviceMAC);
+
+                    return {
+                        deviceMAC,
+                        data: deviceMeasurements.map((measurement) => (
+                            measurement.value !== -99 ? measurement.value : null
+                        )),
+                        color: chartColors[index],
+                    };
+                });
+
+                yAxisData.forEach(deviceData => {
+                    const paddingLength = xAxisData.length - deviceData.data.length;
+                    deviceData.data = Array(paddingLength).fill(null).concat(deviceData.data);
+                });
+
+                setChartData({ xAxisData, yAxisData });
+            }
+            else {
+                setChartData({ xAxisData: [], yAxisData: [] });
+            }
+
         } catch (error) {
             console.error('Error fetching data:', error);
         }
@@ -165,7 +189,7 @@ const Chart = ({ measurementName }) => {
             setUniqueDevices([]);
         }
 
-        console.log(selectedChannel);
+        //console.log(selectedChannel);
     };
 
     const handleDeviceChange = (selected) => {
@@ -187,15 +211,21 @@ const Chart = ({ measurementName }) => {
         //console.log(selectedDevices);
     };
 
-    const handleSave = () => {
-        console.log(selectedDate);
-        console.log(startTime);
-        console.log(endTime);
-    };
+    const handleSave = async () => {
+        try {
+            // Check if start time is less than end time
+            if (startTime >= endTime) {
+                console.error('Start time must be earlier than end time');
+                return; // Exit the function if the check fails
+            }
 
-    const handleTimeIntervalChange = (interval) => {
-        setSelectedTimeInterval(interval);
-        setCurrentAxisInterval(Number(interval));
+            setReadyToPlot(true);
+            // Przesunięcie wywołania fetchData do tego miejsca
+            await fetchData(selectedChannel, startTime, endTime);
+            console.log('Data fetched successfully!');
+        } catch (error) {
+            console.error('Error fetching data:', error);
+        }
     };
 
     return (

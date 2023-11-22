@@ -9,6 +9,7 @@ client.on("connect", () => {
 
     
   setInterval(() => {
+    console.log(new Date().toISOString());
     const data = `{"MAC":"00:1A:2B:3C:4D:5E","type":"Temperature","value":${Math.floor(Math.random() * 41)},"timestamp":${Date.now()},"status":"OK"}`;
     client.publish(MQTT_TOPIC_TEMPERATURE, data);
   }, 4000);
