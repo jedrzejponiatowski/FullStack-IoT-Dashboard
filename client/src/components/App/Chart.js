@@ -33,8 +33,7 @@ import {
 import { DemoContainer } from '@mui/x-date-pickers/internals/demo';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { DatePicker } from '@mui/x-date-pickers/DatePicker';
-import { TimePicker } from '@mui/x-date-pickers/TimePicker';
+import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
 
 const Chart = ({ measurementName }) => {
     const theme = useTheme();
@@ -43,10 +42,8 @@ const Chart = ({ measurementName }) => {
     const [selectedDevices, setSelectedDevices] = useState([]);
     const [uniqueDevices, setUniqueDevices] = useState([]);
     const [uniqueChannels, setUniqueChannels] = useState([]);
-    const [selectedTimeInterval, setSelectedTimeInterval] = useState('3');
     const [currentAxisInterval, setCurrentAxisInterval] = useState(1);
     const [activeMeasurementsData, setActiveMeasurementsData] = useState([]);
-    const [selectedDate, setSelectedDate] = useState(new Date());
     const [startTime, setStartTime] = useState(new Date());
     const [endTime, setEndTime] = useState(new Date());
     const [readyToPlot, setReadyToPlot] = useState(false);
@@ -88,6 +85,7 @@ const Chart = ({ measurementName }) => {
             }
 
             if (readyToPlot) {
+                /*
                 console.log("aaa");
                 const Achannel = 'Temperature';
                 const currentTime = new Date().getTime();
@@ -95,12 +93,12 @@ const Chart = ({ measurementName }) => {
                 const AstartTime = new Date(fiveMinutesAgo);
                 const AendTime = new Date(currentTime);
                 console.log(Number(AstartTime));
-
+                */
                 const measurementsResponse = await axios.get('/api/measurements/filtered', {
                     params: {
-                        channel: Achannel,
-                        startTime: Number(AstartTime),
-                        endTime: Number(AendTime),
+                        channel: String(selectedChannel),
+                        startTime: Number(startTime),
+                        endTime: Number(endTime),
                     },
                 });
                 console.log(measurementsResponse);
@@ -213,18 +211,22 @@ const Chart = ({ measurementName }) => {
 
     const handleSave = async () => {
         try {
+            console.log("przed kalkulacja");
+            console.log(startTime);
+            console.log(endTime);
+    
             // Check if start time is less than end time
             if (startTime >= endTime) {
-                console.error('Start time must be earlier than end time');
-                return; // Exit the function if the check fails
+                throw new Error('Start time must be earlier than end time');
             }
-
+    
             setReadyToPlot(true);
+    
             // Przesunięcie wywołania fetchData do tego miejsca
             await fetchData(selectedChannel, startTime, endTime);
             console.log('Data fetched successfully!');
         } catch (error) {
-            console.error('Error fetching data:', error);
+            console.error('Error fetching data:', error.message);
         }
     };
 
@@ -360,18 +362,8 @@ const Chart = ({ measurementName }) => {
 
                     <LocalizationProvider dateAdapter={AdapterDayjs}>
                         <DemoContainer components={['DatePicker']}>
-                            <DatePicker
-                                label="Controlled picker"
-                                //value={pickedDate}
-                                onChange={(newValue) => setSelectedDate(newValue)}
-                            />
-                        </DemoContainer>
-                    </LocalizationProvider>
-
-                    <LocalizationProvider dateAdapter={AdapterDayjs}>
-                        <DemoContainer components={['DatePicker']}>
-                            <TimePicker
-                                label="Start Time"
+                            <DateTimePicker
+                                label="Controlled picker1"
                                 //value={value}
                                 onChange={(newValue) => setStartTime(newValue)}
                             />
@@ -380,8 +372,8 @@ const Chart = ({ measurementName }) => {
 
                     <LocalizationProvider dateAdapter={AdapterDayjs}>
                         <DemoContainer components={['DatePicker']}>
-                            <TimePicker
-                                label="End Time"
+                            <DateTimePicker
+                                label="Controlled picker2"
                                 //value={value}
                                 onChange={(newValue) => setEndTime(newValue)}
                             />
