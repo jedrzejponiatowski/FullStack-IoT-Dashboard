@@ -35,7 +35,7 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
 
-const Chart = ({ measurementName }) => {
+const Chart = ({ }) => {
     const theme = useTheme();
     const [chartData, setChartData] = useState({ xAxisData: [], yAxisData: [] });
     const [selectedChannel, setSelectedChannel] = useState("default");
@@ -55,11 +55,11 @@ const Chart = ({ measurementName }) => {
     ]);
 
     useEffect(() => {
-        fetchData(selectedChannel, startTime, endTime);
+        fetchData(selectedChannel, startTime, endTime, readyToPlot);
         //console.log(selectedDevices);
     }, [selectedDevices]);
 
-    const fetchData = async (channel, _startTime, _endTime) => {
+    const fetchData = async (channel, _startTime, _endTime, readyToPlot) => {
         try {
             console.log("****");
             //console.log(String(channel));
@@ -84,6 +84,9 @@ const Chart = ({ measurementName }) => {
                 setUniqueDevices([]);
             }
 
+            console.log(selectedChannel);
+            console.log(selectedDevices);
+
             if (readyToPlot) {
                 /*
                 console.log("aaa");
@@ -101,10 +104,10 @@ const Chart = ({ measurementName }) => {
                         endTime: Number(endTime),
                     },
                 });
-                console.log(measurementsResponse);
+
 
                 const measurementsData = measurementsResponse.data.data;
-
+                console.log(measurementsData);
                 const filteredMeasurementsData = measurementsData.filter(
                     (measurement) => {
                         const activeMeasurementExists = activeMeasurementsData.some(
@@ -116,7 +119,7 @@ const Chart = ({ measurementName }) => {
                         const isDeviceSelected = selectedDevices.includes(measurement.device.MAC);
 
                         return (
-                            measurement.channel.type === measurementName &&
+                            measurement.channel.type === String(selectedChannel) &&
                             new Date(measurement.timestamp).getTime() >= new Date(startTime).getTime() &&
                             activeMeasurementExists &&
                             isDeviceSelected
@@ -139,17 +142,26 @@ const Chart = ({ measurementName }) => {
                 const xAxisData = uniqueTimestamps.map((timestamp) => formatDate(timestamp));
 
                 const yAxisData = uniqueDevices.map((deviceMAC, index) => {
+                    const deviceInfo = activeMeasurementsData.find(device => device.device.MAC === deviceMAC);
+
+                    if (!deviceInfo) {
+                        // Obsłuż przypadki, gdy nie znaleziono informacji o urządzeniu
+                        console.error(`Device information not found for MAC: ${deviceMAC}`);
+                        return null;
+                    }
+
                     const deviceMeasurements = filteredMeasurementsData
                         .filter((measurement) => measurement.device.MAC === deviceMAC);
 
                     return {
                         deviceMAC,
+                        deviceName: deviceInfo.device.name, // Dodaj deviceName
                         data: deviceMeasurements.map((measurement) => (
                             measurement.value !== -99 ? measurement.value : null
                         )),
                         color: chartColors[index],
                     };
-                });
+                }).filter(Boolean);
 
                 yAxisData.forEach(deviceData => {
                     const paddingLength = xAxisData.length - deviceData.data.length;
@@ -174,6 +186,8 @@ const Chart = ({ measurementName }) => {
     };
 
     const handleChannelChange = (selectedChannel) => {
+        setReadyToPlot(false);
+        setSelectedDevices([]);
         setSelectedChannel(selectedChannel);
 
         // Aktualizacja listy wybranych urządzeń na podstawie wybranego kanału
@@ -188,11 +202,6 @@ const Chart = ({ measurementName }) => {
         }
 
         //console.log(selectedChannel);
-    };
-
-    const handleDeviceChange = (selected) => {
-        handleCheckboxChange(selected);
-
     };
 
     const handleCheckboxChange = (deviceMAC) => {
@@ -214,16 +223,15 @@ const Chart = ({ measurementName }) => {
             console.log("przed kalkulacja");
             console.log(startTime);
             console.log(endTime);
-    
+
             // Check if start time is less than end time
             if (startTime >= endTime) {
                 throw new Error('Start time must be earlier than end time');
             }
-    
+
             setReadyToPlot(true);
-    
             // Przesunięcie wywołania fetchData do tego miejsca
-            await fetchData(selectedChannel, startTime, endTime);
+            await fetchData(selectedChannel, startTime, endTime, true);
             console.log('Data fetched successfully!');
         } catch (error) {
             console.error('Error fetching data:', error.message);
@@ -267,7 +275,7 @@ const Chart = ({ measurementName }) => {
                                     key={device.deviceMAC}
                                     type="monotone"
                                     dataKey={device.deviceMAC}
-                                    name={device.deviceMAC}
+                                    name={device.deviceName}
                                     stroke={device.color}
                                     strokeWidth={2}
                                     dot={{ strokeWidth: 2, r: 2 }}
@@ -329,8 +337,7 @@ const Chart = ({ measurementName }) => {
                             labelId="device-select-label"
                             id="device-select"
                             multiple
-                            value={selectedDevices} // Change this line
-                            //onChange={(event) => handleDeviceChange([event.target.value])}
+                            value={["Select Devices"]}
                             renderValue={(selected) => (
                                 selected.includes("SelectDevice") ? "Select Device" : selected.join(", ")
                             )}
@@ -344,15 +351,25 @@ const Chart = ({ measurementName }) => {
                                 },
                             }}
                         >
-                            {uniqueDevices.map((deviceMAC) => (
-                                <MenuItem key={deviceMAC} value={deviceMAC}>
-                                    <Checkbox
-                                        checked={selectedDevices.includes(deviceMAC)}
-                                        onChange={() => handleCheckboxChange(deviceMAC)}
-                                    />
-                                    <ListItemText primary={deviceMAC} />
-                                </MenuItem>
-                            ))}
+                            {uniqueDevices.map((deviceMAC) => {
+                                const deviceInfo = activeMeasurementsData.find(device => device.device.MAC === deviceMAC);
+
+                                if (!deviceInfo) {
+                                    // Obsłuż przypadki, gdy nie znaleziono informacji o urządzeniu
+                                    console.error(`Device information not found for MAC: ${deviceMAC}`);
+                                    return null;
+                                }
+
+                                return (
+                                    <MenuItem key={deviceMAC} value={deviceMAC}>
+                                        <Checkbox
+                                            checked={selectedDevices.includes(deviceMAC)}
+                                            onChange={() => handleCheckboxChange(deviceMAC)}
+                                        />
+                                        <ListItemText primary={deviceInfo.device.name} />
+                                    </MenuItem>
+                                );
+                            })}
                         </Select>
                     </FormControl>
 

@@ -127,7 +127,7 @@ exports.getMeasurementsByChannelAndTimeRange = async (req, res, next) => {
     try {
         console.log("dupaaa");
         const { channel, startTime, endTime } = req.query;
-        console.log(startTime);
+        console.log(new Date(Number(startTime)).toLocaleString());
 
         // Pobierz pomiary z konkretnego kanału i zpopuluj dane urządzenia i kanału
         const measurements = await Measurement.find()
