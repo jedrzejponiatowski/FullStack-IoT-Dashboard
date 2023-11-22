@@ -94,28 +94,10 @@ export default function Dashboard() {
 
     const renderTabContent = () => {
         switch (selectedTab) {
-            case 'Temperature':
+            case 'Raport':
                 return (
                     <React.Fragment>
-                        <Chart measurementName="Temperature" />
-                    </React.Fragment>
-                );
-            case 'Humidity':
-                return (
-                    <React.Fragment>
-                        <Chart measurementName="Humidity" />
-                    </React.Fragment>
-                );
-            case 'Pressure':
-                return (
-                    <React.Fragment>
-                        <Chart measurementName="Pressure" />
-                    </React.Fragment>
-                );
-            case 'Luminous':
-                return (
-                    <React.Fragment>
-                        <Chart measurementName="Pressure" />
+                        <Chart />
                     </React.Fragment>
                 );
             case "Config":

@@ -47,6 +47,9 @@ const Chart = ({ }) => {
     const [startTime, setStartTime] = useState(new Date());
     const [endTime, setEndTime] = useState(new Date());
     const [readyToPlot, setReadyToPlot] = useState(false);
+    const [minYValue, setMinYValue] = useState(0);
+    const [maxYValue, setMaxYValue] = useState(10);
+    const [displayedMeasurementsCount, setDisplayedMeasurementsCount] = useState(0);
     const [chartColors, setChartColors] = useState([
         '#FF5733', // Pomarańczowy
         '#34A853', // Zielony
@@ -127,6 +130,10 @@ const Chart = ({ }) => {
                     }
                 );
 
+                const count = countDisplayedMeasurements(filteredMeasurementsData, selectedDevices[0]);
+                setDisplayedMeasurementsCount(count);
+                console.log(count);
+
                 if (filteredMeasurementsData.length === 0) {
                     const placeholderMeasurement = {
                         device: { MAC: 'undefined' },
@@ -151,7 +158,20 @@ const Chart = ({ }) => {
                     }
 
                     const deviceMeasurements = filteredMeasurementsData
-                        .filter((measurement) => measurement.device.MAC === deviceMAC);
+                        .filter((measurement) => measurement.device.MAC === deviceMAC)
+                    //.map((measurement) => measurement.value)
+
+                    const tempMeasurements = deviceMeasurements
+                        .filter((value) => value !== -99);
+
+                    if (tempMeasurements.length > 0) {
+                        const minValue = Math.min(...deviceMeasurements);
+                        const maxValue = Math.max(...deviceMeasurements);
+
+                        // Aktualizuj min i max wartości na osi Y
+                        setMinYValue(Math.min(minYValue, minValue));
+                        setMaxYValue(Math.max(maxYValue, maxValue));
+                    }
 
                     return {
                         deviceMAC,
@@ -218,6 +238,15 @@ const Chart = ({ }) => {
         //console.log(selectedDevices);
     };
 
+    const countDisplayedMeasurements = (filteredMeasurements, selectedDevice) => {
+        const deviceMeasurements = filteredMeasurements
+            .filter((measurement) => measurement.device.MAC === selectedDevice)
+            .map((measurement) => measurement.value);
+    
+        const displayedMeasurements = deviceMeasurements.filter((value) => value !== -99);
+        return displayedMeasurements.length;
+    };
+
     const handleSave = async () => {
         try {
             console.log("przed kalkulacja");
@@ -265,8 +294,8 @@ const Chart = ({ }) => {
                             margin={{ top: 20, right: 10, bottom: 10, left: 0 }}
                         >
                             <CartesianGrid stroke="#bbb" strokeDasharray="3 3" opacity={0.5} />
-                            <XAxis dataKey="time" stroke={theme.palette.text.secondary} tick={{ fontSize: 16 }} interval={currentAxisInterval} />
-                            <YAxis stroke={theme.palette.text.secondary} tick={{ fontSize: 16 }} tickCount={10} domain={[0, 40]} />
+                            <XAxis dataKey="time" stroke={theme.palette.text.secondary} tick={{ fontSize: 16 }} interval={Math.floor(displayedMeasurementsCount/7)} />
+                            <YAxis stroke={theme.palette.text.secondary} tick={{ fontSize: 16 }} tickCount={10} domain={[minYValue, maxYValue]} />
                             <Legend verticalAlign="top" height={36} />
                             <Tooltip content={<CustomTooltip />} />
 
@@ -296,7 +325,7 @@ const Chart = ({ }) => {
                         height: 550,
                     }}
                 >
-                    <Typography variant="h6" gutterBottom component="div" style={{ marginTop: '16px' }}>
+                    <Typography variant="h7" gutterBottom component="div" style={{ marginTop: '5px', textAlign: 'center' }}>
                         Channel List
                     </Typography>
                     <FormControl fullWidth>
@@ -308,11 +337,11 @@ const Chart = ({ }) => {
                             renderValue={(selected) => (
                                 selected === "default" ? "Select Channel" : selected // Zmiana warunku renderValue
                             )}
-                            style={{ height: 'auto' }}
+                            style={{ height: 45 }}
                             MenuProps={{
                                 PaperProps: {
                                     style: {
-                                        maxHeight: 300,
+                                        maxHeight: 200,
                                     },
                                 },
                             }}
@@ -329,7 +358,7 @@ const Chart = ({ }) => {
                     </FormControl>
 
 
-                    <Typography variant="h6" gutterBottom component="div">
+                    <Typography variant="h7" gutterBottom component="div" style={{ marginTop: '25px', textAlign: 'center' }}>
                         Device List
                     </Typography>
                     <FormControl fullWidth>
@@ -341,12 +370,12 @@ const Chart = ({ }) => {
                             renderValue={(selected) => (
                                 selected.includes("SelectDevice") ? "Select Device" : selected.join(", ")
                             )}
-                            style={{ height: 'auto' }}
+                            style={{ height: 45 }}
                             disabled={selectedChannel === "default"}
                             MenuProps={{
                                 PaperProps: {
                                     style: {
-                                        maxHeight: 300,
+                                        maxHeight: 200,
                                     },
                                 },
                             }}
@@ -373,16 +402,19 @@ const Chart = ({ }) => {
                         </Select>
                     </FormControl>
 
-                    <Typography variant="h6" gutterBottom component="div" style={{ marginTop: '16px' }}>
+                    <Divider sx={{ my: 4 }} />
+
+                    <Typography variant="h7" gutterBottom component="div" style={{ marginTop: '0px', textAlign: 'center' }}>
                         Date Range
                     </Typography>
 
                     <LocalizationProvider dateAdapter={AdapterDayjs}>
                         <DemoContainer components={['DatePicker']}>
                             <DateTimePicker
-                                label="Controlled picker1"
+                                label="Start Date"
                                 //value={value}
                                 onChange={(newValue) => setStartTime(newValue)}
+                                style={{ height: '40px' }}
                             />
                         </DemoContainer>
                     </LocalizationProvider>
@@ -390,14 +422,14 @@ const Chart = ({ }) => {
                     <LocalizationProvider dateAdapter={AdapterDayjs}>
                         <DemoContainer components={['DatePicker']}>
                             <DateTimePicker
-                                label="Controlled picker2"
+                                label="End Date"
                                 //value={value}
                                 onChange={(newValue) => setEndTime(newValue)}
                             />
                         </DemoContainer>
                     </LocalizationProvider>
 
-                    <Button variant="contained" color="primary" onClick={handleSave} disabled={selectedDevices.length === 0}>
+                    <Button variant="contained" color="primary" style={{ marginTop: '20px' }} onClick={handleSave} disabled={selectedDevices.length === 0}>
                         Submit
                     </Button>
                 </Paper>

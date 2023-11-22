@@ -125,9 +125,7 @@ exports.deleteMeasurements = async (req, res, next) => {
 
 exports.getMeasurementsByChannelAndTimeRange = async (req, res, next) => {
     try {
-        console.log("dupaaa");
         const { channel, startTime, endTime } = req.query;
-        console.log(new Date(Number(startTime)).toLocaleString());
 
         // Pobierz pomiary z konkretnego kanału i zpopuluj dane urządzenia i kanału
         const measurements = await Measurement.find()
@@ -149,8 +147,6 @@ exports.getMeasurementsByChannelAndTimeRange = async (req, res, next) => {
                 measurement.timestamp <= endTime
             );
 
-
-            console.log(filteredMeasurements);
         res.status(200).json({
             success: true,
             data: filteredMeasurements,

@@ -12,18 +12,6 @@ const {
 
 router.route("/filtered").get(getMeasurementsByChannelAndTimeRange);
 
-/*
-router.route("/filtered").get((req, res) => {
-    const { channel, startTime, endTime } = req.query;
-
-    // Tutaj możesz obsłużyć zapytanie zgodnie z potrzebami, na przykład używając funkcji z MeasurementController
-    // Przykładowa implementacja (załóżmy, że masz funkcję getMeasurementsByChannelAndTimeRange w kontrolerze):
-    const filteredMeasurements = getMeasurementsByChannelAndTimeRange(channel, startTime, endTime);
-
-    // Poniżej zakładam, że filteredMeasurements to wynik zapytania z kontrolera
-    res.json({ success: true, data: filteredMeasurements });
-});
-*/
 // Pobieranie wszystkich pomiarów
 router.route('/').get(getMeasurements).post(addMeasurement).delete(deleteMeasurements); 
 

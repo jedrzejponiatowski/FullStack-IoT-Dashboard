@@ -10,32 +10,23 @@ import LuminousIcon from '@mui/icons-material/BrightnessMedium';
 import ConfigIcon from '@mui/icons-material/Settings';
 import ArchiveIcon from '@mui/icons-material/Archive';
 import Divider from '@mui/material/Divider';
+import ShowChartIcon from '@mui/icons-material/ShowChart';
 
 
 const ListItems = ({ handleTabChange }) => {
   const items = [
-    { icon: <TemperatureIcon sx={{ color: '#4e342e', fontSize: '30px' }} />, primary: 'Temperature' },
-    { icon: <HumidityIcon sx={{ color: '#6d4c41', fontSize: '30px' }} />, primary: 'Humidity' },
-    { icon: <PressureIcon sx={{ color: '#8d6e63', fontSize: '30px' }} />, primary: 'Pressure' },
-    { icon: <LuminousIcon sx={{ color: '#4e342e', fontSize: '30px' }} />, primary: 'Luminous' },
-    // Config i Archive przeniesione na koniec listy
+    { icon: <ShowChartIcon sx={{ color: '#4e342e', fontSize: '30px' }} />, primary: 'Raport' },
+    { icon: <ConfigIcon sx={{ color: '#6d4c41', fontSize: '30px' }} />, primary: 'Config' },
+    { icon: <ArchiveIcon sx={{ color: '#8d6e63', fontSize: '30px' }} />, primary: 'Archive' },
   ];
 
   const configAndArchive = [
-    { icon: <ConfigIcon sx={{ color: '#6d4c41', fontSize: '30px' }} />, primary: 'Config' },
-    { icon: <ArchiveIcon sx={{ color: '#8d6e63', fontSize: '30px' }} />, primary: 'Archive' },
+
   ];
 
   return (
     <React.Fragment>
       {items.map((item) => (
-        <ListItemButton key={item.primary} onClick={() => handleTabChange(item.primary)}>
-          <ListItemIcon>{item.icon}</ListItemIcon>
-          <ListItemText primary={item.primary} />
-        </ListItemButton>
-      ))}
-        <Divider sx={{ my: 1 }} />
-      {configAndArchive.map((item) => (
         <ListItemButton key={item.primary} onClick={() => handleTabChange(item.primary)}>
           <ListItemIcon>{item.icon}</ListItemIcon>
           <ListItemText primary={item.primary} />
