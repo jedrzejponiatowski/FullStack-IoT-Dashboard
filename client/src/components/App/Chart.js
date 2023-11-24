@@ -1,11 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import dayjs from 'dayjs';
 import {
     useTheme,
     Checkbox,
-    List,
-    ListItem,
     ListItemText,
     Divider,
     Paper,
@@ -13,6 +10,9 @@ import {
     Typography,
     CssBaseline,
     Button,
+    Select,
+    MenuItem,
+    FormControl,
 } from '@mui/material';
 import {
     LineChart,
@@ -24,12 +24,7 @@ import {
     Tooltip,
     Line
 } from 'recharts';
-import {
-    Select,
-    MenuItem,
-    FormControl,
-    InputLabel,
-} from '@mui/material';
+
 import { DemoContainer } from '@mui/x-date-pickers/internals/demo';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
@@ -65,9 +60,6 @@ const Chart = ({ }) => {
     const fetchData = async (channel, _startTime, _endTime, readyToPlot) => {
         try {
             console.log("****");
-            //console.log(String(channel));
-            //console.log(Number(startTime));
-            //console.log(Number(endTime));
 
             const activeMeasurementsResponse = await axios.get('/api/active_measurements');
 
@@ -91,15 +83,7 @@ const Chart = ({ }) => {
             console.log(selectedDevices);
 
             if (readyToPlot) {
-                /*
-                console.log("aaa");
-                const Achannel = 'Temperature';
-                const currentTime = new Date().getTime();
-                const fiveMinutesAgo = currentTime - 5 * 60 * 1000;
-                const AstartTime = new Date(fiveMinutesAgo);
-                const AendTime = new Date(currentTime);
-                console.log(Number(AstartTime));
-                */
+
                 const measurementsResponse = await axios.get('/api/measurements/filtered', {
                     params: {
                         channel: String(selectedChannel),
@@ -249,10 +233,6 @@ const Chart = ({ }) => {
 
     const handleSave = async () => {
         try {
-            console.log("przed kalkulacja");
-            console.log(startTime);
-            console.log(endTime);
-
             // Check if start time is less than end time
             if (startTime >= endTime) {
                 throw new Error('Start time must be earlier than end time');

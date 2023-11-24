@@ -1,7 +1,4 @@
 import { BrowserRouter, Route, Routes } from "react-router-dom";
-//import Dashboard from "./components/Dashboard/Dashboard";
-import LoginScreen from "./components/LoginScreen/LoginScreen";
-import RegisterScreen from "./components/RegisterScreen/RegisterScreen";
 import Dashboard from "./components/App/Dashboard";
 
 
@@ -11,8 +8,6 @@ const AppRoutes = () => {
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<Dashboard />} />
-        <Route path="/login" element={<LoginScreen />} />
-        <Route path="/register" element={<RegisterScreen />} />
       </Routes>
     </BrowserRouter>
   );

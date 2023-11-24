@@ -1,183 +1,333 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableRow,
-    Link,
-    Typography,
-    Paper,
-    CssBaseline,
-    FormControlLabel,
     Checkbox,
+    ListItemText,
+    Divider,
+    Paper,
     Grid,
+    Typography,
+    CssBaseline,
+    Button,
+    Select,
+    MenuItem,
+    FormControl,
 } from '@mui/material';
-import TableContainer from '@mui/material/TableContainer';
-import '@fontsource/roboto/400.css';
 
-const Archive = () => {
-    const [measurements, setMeasurements] = useState([]);
+import { DemoContainer } from '@mui/x-date-pickers/internals/demo';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
+import TableContainer from '@mui/material/TableContainer';
+import Table from '@mui/material/Table';
+import TableHead from '@mui/material/TableHead';
+import TableBody from '@mui/material/TableBody';
+import TableRow from '@mui/material/TableRow';
+import TableCell from '@mui/material/TableCell';
+import TablePagination from '@mui/material/TablePagination';
+
+const Archive = ({ }) => {
+    const [selectedChannel, setSelectedChannel] = useState("default");
+    const [selectedDevices, setSelectedDevices] = useState([]);
+    const [uniqueDevices, setUniqueDevices] = useState([]);
+    const [uniqueChannels, setUniqueChannels] = useState([]);
+    const [activeMeasurementsData, setActiveMeasurementsData] = useState([]);
+    const [startTime, setStartTime] = useState(new Date());
+    const [endTime, setEndTime] = useState(new Date());
+    const [readyToPlot, setReadyToPlot] = useState(false);
     const [filteredMeasurements, setFilteredMeasurements] = useState([]);
-    const [filters, setFilters] = useState({
-        temperature: false,
-        humidity: false,
-        pressure: false,
-    });
+    const [page, setPage] = useState(0);
+    const [rowsPerPage, setRowsPerPage] = useState(30);
 
     useEffect(() => {
-        const fetchMeasurements = async () => {
-            try {
-                const response = await axios.get('/api/measurements');
-                const measurementsData = response.data.data;
+        fetchData(startTime, endTime, readyToPlot);
+    }, [selectedDevices]);
 
-                setMeasurements(measurementsData);
-                setFilteredMeasurements(measurementsData);
-                console.log('log');
-                console.log(response);
-            } catch (error) {
-                console.error('Error fetching measurements:', error);
+    const fetchData = async (_startTime, _endTime, readyToPlot) => {
+        try {
+            const activeMeasurementsResponse = await axios.get('/api/active_measurements');
+
+            const activeMeasurementsData = activeMeasurementsResponse.data.data;
+            setActiveMeasurementsData(activeMeasurementsData);
+
+            const uniqueChannels = [...new Set(activeMeasurementsData.map(activeMeasurement => activeMeasurement.channel.type))];
+            setUniqueChannels(uniqueChannels);
+
+            if (selectedChannel[0] !== "default") {
+                const devicesForSelectedChannel = activeMeasurementsData
+                    .filter(activeMeasurement => activeMeasurement.channel.type === selectedChannel[0])
+                    .map(activeMeasurement => activeMeasurement.device.MAC);
+
+                setUniqueDevices(devicesForSelectedChannel);
+            } else {
+                setUniqueDevices([]);
             }
-        };
+            if (readyToPlot) {
 
-        fetchMeasurements();
-    }, []);
+                const measurementsResponse = await axios.get('/api/measurements/filtered', {
+                    params: {
+                        channel: String(selectedChannel),
+                        startTime: Number(startTime),
+                        endTime: Number(endTime),
+                    },
+                });
+
+                const measurementsData = measurementsResponse.data.data;
+                const filteredMeasurementsData = measurementsData.filter(
+                    (measurement) => {
+                        const activeMeasurementExists = activeMeasurementsData.some(
+                            (activeMeasurement) =>
+                                activeMeasurement.device.MAC === measurement.device.MAC
+                        );
+
+                        const isDeviceSelected = selectedDevices.includes(measurement.device.MAC);
+
+                        return (
+                            measurement.channel.type === String(selectedChannel) &&
+                            new Date(measurement.timestamp).getTime() >= new Date(startTime).getTime() &&
+                            activeMeasurementExists &&
+                            isDeviceSelected
+                        );
+                    }
+                );
+                setFilteredMeasurements(filteredMeasurementsData);
+            }
+
+        } catch (error) {
+            console.error('Error fetching data:', error);
+        }
+    };
+
+
+    const handleChangePage = (event, newPage) => {
+        setPage(newPage);
+    };
+
+    const handleChangeRowsPerPage = (event) => {
+        setRowsPerPage(parseInt(event.target.value, 10));
+        setPage(0);
+    };
 
     const formatDate = (timestamp) => {
         const date = new Date(timestamp);
-
-        const year = date.getFullYear();
-        const month = (date.getMonth() + 1).toString().padStart(2, '0'); // Dodaj 1, ponieważ miesiące są indeksowane od 0
-        const day = date.getDate().toString().padStart(2, '0');
-        const hours = date.getHours().toString().padStart(2, '0');
-        const minutes = date.getMinutes().toString().padStart(2, '0');
-
-        return `${day}.${month}.${year}, ${hours}:${minutes}`;
+        const options = { hour: 'numeric', minute: 'numeric', hour12: false };
+        return date.toLocaleTimeString('en-US', options);
     };
 
-    const handleFilterChange = (event) => {
-        const { name, checked } = event.target;
-        setFilters({
-            ...filters,
-            [name]: checked,
+    const handleChannelChange = (selectedChannel) => {
+        setReadyToPlot(false);
+        setSelectedDevices([]);
+        setSelectedChannel(selectedChannel);
+
+        if (selectedChannel !== "default") {
+            const devicesForSelectedChannel = activeMeasurementsData
+                .filter(activeMeasurement => activeMeasurement.channel.type === selectedChannel[0])
+                .map(activeMeasurement => activeMeasurement.device.MAC);
+            setUniqueDevices(devicesForSelectedChannel);
+        } else {
+            setUniqueDevices([]);
+        }
+    };
+
+    const handleCheckboxChange = (deviceMAC) => {
+        setSelectedDevices((prevSelectedDevices) => {
+            if (prevSelectedDevices.includes(deviceMAC)) {
+                // Jeśli urządzenie jest już zaznaczone, usuń je z listy
+                return prevSelectedDevices.filter((device) => device !== deviceMAC);
+            } else {
+                // W przeciwnym razie dodaj urządzenie do listy
+                return [...prevSelectedDevices, deviceMAC];
+            }
         });
     };
 
-    useEffect(() => {
-        const filteredData = measurements.filter((measurement) => {
-            if (filters.temperature && measurement.channel.type === 'Temperature') {
-                return true;
+    const handleSave = async () => {
+        try {
+            // Check if start time is less than end time
+            if (startTime >= endTime) {
+                throw new Error('Start time must be earlier than end time');
             }
-            if (filters.humidity && measurement.channel.type === 'Humidity') {
-                return true;
-            }
-            if (filters.pressure && measurement.channel.type === 'Pressure') {
-                return true;
-            }
-            if (filters.luminous && measurement.channel.type === 'Luminous') {
-                return true;
-            }
-            return false;
-        });
 
-        setFilteredMeasurements(filteredData);
-    }, [filters, measurements]);
+            setReadyToPlot(true);
+            await fetchData(startTime, endTime, true);
+            
+        } catch (error) {
+            console.error('Error fetching data:', error.message);
+        }
+    };
 
     return (
-        <>
+        <Grid container spacing={4} style={{ height: '100vh', overflow: 'hidden' }}>
             <CssBaseline />
-            <div style={{ height: '100vh', overflow: 'hidden' }}>
-                <Grid container spacing={4} style={{ height: '100%' }}>
-                    <Grid item xs={9}>
-                        {/* Wyniki w tabelce po lewej stronie */}
-                        <Paper
-                            sx={{
-                                p: 2,
-                                display: 'flex',
-                                flexDirection: 'column',
-                                height: 570,
-                                boxShadow: '5px 5px 25px rgba(0, 0, 0, 0.3)',
-                            }}
-                        >
-                            <Typography variant="h6" align='center' fontFamily='serif' gutterBottom style={{ marginBottom: '15px' }}>
-                                Measurement Archive
-                            </Typography>
-                            <TableContainer marginTop='1'>
-                                <Table size="small">
-                                    <TableHead>
-                                        <TableRow>
-                                            <TableCell sx={{ fontFamily: 'serif', fontSize: '16px', borderBottom: '1px solid #808080', borderTop: '1px solid #808080', borderRight: '1px solid #C0C0C0' }}>Channel Type</TableCell>
-                                            <TableCell sx={{ fontFamily: 'serif', fontSize: '16px', borderBottom: '1px solid #808080', borderTop: '1px solid #808080', borderRight: '1px solid #C0C0C0' }}>Device Name</TableCell>
-                                            <TableCell sx={{ fontFamily: 'serif', fontSize: '16px', borderBottom: '1px solid #808080', borderTop: '1px solid #808080', borderRight: '1px solid #C0C0C0' }}>Value</TableCell>
-                                            <TableCell sx={{ fontFamily: 'serif', fontSize: '16px', borderBottom: '1px solid #808080', borderTop: '1px solid #808080', borderRight: '1px solid #C0C0C0' }}>Date</TableCell>
-                                            <TableCell sx={{ fontFamily: 'serif', fontSize: '16px', borderBottom: '1px solid #808080', borderTop: '1px solid #808080', }}>Status</TableCell>
+            <Grid item xs={9}>
+                <Paper
+                    sx={{
+                        p: 2,
+                        display: 'flex',
+                        flexDirection: 'column',
+                        height: 550,
+                    }}
+                >
+                    <Typography variant="h6" gutterBottom component="div">
+                        Archive
+                    </Typography>
+
+                    <TableContainer sx={{ marginBottom: 2, maxHeight: '400px' }}>
+                        <Table size="small">
+                            <TableHead>
+                                <TableRow>
+                                    <TableCell sx={{ fontFamily: 'serif', fontSize: '16px', borderBottom: '1px solid #808080', borderTop: '1px solid #808080', borderRight: '1px solid #C0C0C0' }}>Channel</TableCell>
+                                    <TableCell sx={{ fontFamily: 'serif', fontSize: '16px', borderBottom: '1px solid #808080', borderTop: '1px solid #808080', borderRight: '1px solid #C0C0C0' }}>Device Name</TableCell>
+                                    <TableCell sx={{ fontFamily: 'serif', fontSize: '16px', borderBottom: '1px solid #808080', borderTop: '1px solid #808080', borderRight: '1px solid #C0C0C0' }}>Data</TableCell>
+                                    <TableCell sx={{ fontFamily: 'serif', fontSize: '16px', borderBottom: '1px solid #808080', borderTop: '1px solid #808080', borderRight: '1px solid #C0C0C0' }}>Value</TableCell>
+                                    <TableCell sx={{ fontFamily: 'serif', fontSize: '16px', borderBottom: '1px solid #808080', borderTop: '1px solid #808080'}}>Status</TableCell>
+                                </TableRow>
+                            </TableHead>
+                            <TableBody>
+                                {filteredMeasurements
+                                    .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                                    .map((measurement, index) => (
+                                        <TableRow key={index}>
+                                            <TableCell sx={{ borderRight: '1px solid #C0C0C0' }}>{measurement.channel.type}</TableCell>
+                                            <TableCell sx={{ borderRight: '1px solid #C0C0C0' }}>{measurement.device.name}</TableCell>
+                                            <TableCell sx={{ borderRight: '1px solid #C0C0C0' }}>{formatDate(measurement.timestamp)}</TableCell>
+                                            <TableCell sx={{ borderRight: '1px solid #C0C0C0' }}>{measurement.value}</TableCell>
+                                            <TableCell>{measurement.status}</TableCell>
                                         </TableRow>
-                                    </TableHead>
-                                    <TableBody>
-                                        {filteredMeasurements.slice().reverse().map((measurement) => (
-                                            <TableRow key={measurement._id}>
-                                                <TableCell sx={{ borderRight: '1px solid #C0C0C0' }}>{measurement.channel && measurement.channel.type}</TableCell>
-                                                <TableCell sx={{ borderRight: '1px solid #C0C0C0' }}>{measurement.device && measurement.device.name}</TableCell>
-                                                <TableCell sx={{ borderRight: '1px solid #C0C0C0' }}>{measurement.value}</TableCell>
-                                                <TableCell sx={{ borderRight: '1px solid #C0C0C0' }}>{formatDate(measurement.timestamp)}</TableCell>
-                                                <TableCell>{measurement.status}</TableCell>
-                                            </TableRow>
-                                        ))}
-                                    </TableBody>
-                                </Table>
-                            </TableContainer>
-                        </Paper>
-                    </Grid>
-                    <Grid item xs={3}>
-                        {/* Filtry po prawej stronie */}
-                        <Paper
-                            sx={{
-                                p: 2,
-                                display: 'flex',
-                                flexDirection: 'column',
-                                height: 570,
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                boxShadow: '5px 5px 25px rgba(0, 0, 0, 0.3)',
+                                    ))}
+                            </TableBody>
+                        </Table>
+                    </TableContainer>
+
+                    <TablePagination sx={{ marginBottom: 2 }}
+                        rowsPerPageOptions={[30, 50, 100]}
+                        component="div"
+                        count={filteredMeasurements.length}
+                        rowsPerPage={rowsPerPage}
+                        page={page}
+                        onPageChange={handleChangePage}
+                        onRowsPerPageChange={handleChangeRowsPerPage}
+                    />
+
+                </Paper>
+            </Grid>
+            <Grid item xs={3}>
+                <Paper
+                    sx={{
+                        p: 2,
+                        display: 'flex',
+                        flexDirection: 'column',
+                        height: 550,
+                    }}
+                >
+                    <Typography variant="h7" gutterBottom component="div" style={{ marginTop: '5px', textAlign: 'center' }}>
+                        Channel List
+                    </Typography>
+                    <FormControl fullWidth>
+                        <Select
+                            labelId="channel-select-label"
+                            id="channel-select"
+                            value={selectedChannel} // Zmiana warunku na "default"
+                            onChange={(event) => handleChannelChange([event.target.value])}
+                            renderValue={(selected) => (
+                                selected === "default" ? "Select Channel" : selected // Zmiana warunku renderValue
+                            )}
+                            style={{ height: 45 }}
+                            MenuProps={{
+                                PaperProps: {
+                                    style: {
+                                        maxHeight: 200,
+                                    },
+                                },
                             }}
                         >
-                            <Typography variant="h6" align="center" fontFamily="serif" gutterBottom style={{ marginTop: '-50px', marginBottom: '30px' }}>
-                                Archive Filters
-                            </Typography>
-                            <div style={{ width: '100%', marginBottom: '10px', marginLeft: '50px' }}>
-                                <FormControlLabel
-                                    control={<Checkbox checked={filters.temperature} onChange={handleFilterChange} name="temperature" />}
-                                    label="Temperature"
-                                    style={{ width: '100%', display: 'flex', alignItems: 'center' }}
-                                />
-                            </div>
-                            <div style={{ width: '100%', marginBottom: '10px', marginLeft: '50px' }}>
-                                <FormControlLabel
-                                    control={<Checkbox checked={filters.humidity} onChange={handleFilterChange} name="humidity" />}
-                                    label="Humidity"
-                                    style={{ width: '100%', display: 'flex', alignItems: 'center' }}
-                                />
-                            </div>
-                            <div style={{ width: '100%', marginBottom: '10px', marginLeft: '50px'}}>
-                                <FormControlLabel
-                                    control={<Checkbox checked={filters.pressure} onChange={handleFilterChange} name="pressure" />}
-                                    label="Pressure"
-                                    style={{ width: '100%', display: 'flex', alignItems: 'center' }}
-                                />
-                            </div>
-                            <div style={{ width: '100%' , marginLeft: '50px'}}>
-                                <FormControlLabel
-                                    control={<Checkbox checked={filters.luminous} onChange={handleFilterChange} name="luminous" />}
-                                    label="Luminous"
-                                    style={{ width: '100%', display: 'flex', alignItems: 'center' }}
-                                />
-                            </div>
-                        </Paper>
-                    </Grid>
-                </Grid>
-            </div>
-        </>
+                            {uniqueChannels.map((channel) => (
+                                <MenuItem key={channel} value={channel}>
+                                    <Checkbox checked={selectedChannel.includes(channel)} />
+                                    {channel}
+                                </MenuItem>
+                            ))}
+                        </Select>
+                    </FormControl>
+
+
+                    <Typography variant="h7" gutterBottom component="div" style={{ marginTop: '25px', textAlign: 'center' }}>
+                        Device List
+                    </Typography>
+                    <FormControl fullWidth>
+                        <Select
+                            labelId="device-select-label"
+                            id="device-select"
+                            multiple
+                            value={["Select Devices"]}
+                            renderValue={(selected) => (
+                                selected.includes("SelectDevice") ? "Select Device" : selected.join(", ")
+                            )}
+                            style={{ height: 45 }}
+                            disabled={selectedChannel === "default"}
+                            MenuProps={{
+                                PaperProps: {
+                                    style: {
+                                        maxHeight: 200,
+                                    },
+                                },
+                            }}
+                        >
+                            {uniqueDevices.map((deviceMAC) => {
+                                const deviceInfo = activeMeasurementsData.find(device => device.device.MAC === deviceMAC);
+
+                                if (!deviceInfo) {
+                                    // Obsłuż przypadki, gdy nie znaleziono informacji o urządzeniu
+                                    console.error(`Device information not found for MAC: ${deviceMAC}`);
+                                    return null;
+                                }
+
+                                return (
+                                    <MenuItem key={deviceMAC} value={deviceMAC}>
+                                        <Checkbox
+                                            checked={selectedDevices.includes(deviceMAC)}
+                                            onChange={() => handleCheckboxChange(deviceMAC)}
+                                        />
+                                        <ListItemText primary={deviceInfo.device.name} />
+                                    </MenuItem>
+                                );
+                            })}
+                        </Select>
+                    </FormControl>
+
+                    <Divider sx={{ my: 4 }} />
+
+                    <Typography variant="h7" gutterBottom component="div" style={{ marginTop: '0px', textAlign: 'center' }}>
+                        Date Range
+                    </Typography>
+
+                    <LocalizationProvider dateAdapter={AdapterDayjs}>
+                        <DemoContainer components={['DatePicker']}>
+                            <DateTimePicker
+                                label="Start Date"
+                                //value={value}
+                                onChange={(newValue) => setStartTime(newValue)}
+                                style={{ height: '40px' }}
+                            />
+                        </DemoContainer>
+                    </LocalizationProvider>
+
+                    <LocalizationProvider dateAdapter={AdapterDayjs}>
+                        <DemoContainer components={['DatePicker']}>
+                            <DateTimePicker
+                                label="End Date"
+                                //value={value}
+                                onChange={(newValue) => setEndTime(newValue)}
+                            />
+                        </DemoContainer>
+                    </LocalizationProvider>
+
+                    <Button variant="contained" color="primary" style={{ marginTop: '20px' }} onClick={handleSave} disabled={selectedDevices.length === 0}>
+                        Submit
+                    </Button>
+                </Paper>
+            </Grid>
+        </Grid>
     );
 };
 

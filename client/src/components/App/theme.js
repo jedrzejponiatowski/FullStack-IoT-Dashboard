@@ -3,13 +3,13 @@ import { createTheme } from '@mui/material/styles';
 const theme = createTheme({
   palette: {
     primary: {
-      main: '#8d6e63', // Twój niestandardowy kolor główny
+      main: '#8d6e63',
       light: '#bcaaa4',
       dark: '#4e342e',
       contrastText: '#ffffff',
     },
     secondary: {
-      main: '#6d4c41', // Twój niestandardowy kolor drugorzędny
+      main: '#6d4c41',
       light: '#a1887f',
       dark: '#3e2723',
       contrastText: '#ffffff',
@@ -38,7 +38,6 @@ const theme = createTheme({
       dark: '#388e3c',
       contrastText: '#ffffff',
     },
-    // Dodaj więcej kolorów według potrzeb
   },
 });
 
