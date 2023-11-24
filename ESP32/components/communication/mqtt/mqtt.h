@@ -28,7 +28,7 @@
 
 #define MQTT_URI "mqtt://test.mosquitto.org"
 //#define MQTT_URI "172.20.10.6"
-#define MQTT_TOPIC "MQTT_topic::temperature"
+#define MQTT_TOPIC "::MQTT_topic::"
 
 
 /*

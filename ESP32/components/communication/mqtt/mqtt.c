@@ -8,12 +8,13 @@ static esp_mqtt_client_handle_t client;
 
 static void log_error_if_nonzero(const char *message, int error_code)
 {
-    if (error_code != 0) {
+    if (error_code != 0)
+    {
         ESP_LOGE(TAG, "Last error %s: 0x%x", message, error_code);
     }
 }
 
-static void parse_and_send(shd_mem_t* shd_ptr, measurement_args_t* args);
+static void parse_and_send(shd_mem_t *shd_ptr, measurement_args_t *args);
 
 /*
  * @brief Event handler registered to receive MQTT events
@@ -30,7 +31,8 @@ void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_t event
     ESP_LOGD(TAG, "Event dispatched from event loop base=%s, event_id=%" PRIi32 "", base, event_id);
     esp_mqtt_event_handle_t event = event_data;
     esp_mqtt_client_handle_t client = event->client;
-    switch ((esp_mqtt_event_id_t)event_id) {
+    switch ((esp_mqtt_event_id_t)event_id)
+    {
     case MQTT_EVENT_CONNECTED:
         ESP_LOGI(TAG, "MQTT_EVENT_CONNECTED");
         break;
@@ -53,12 +55,12 @@ void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_t event
         break;
     case MQTT_EVENT_ERROR:
         ESP_LOGI(TAG, "MQTT_EVENT_ERROR");
-        if (event->error_handle->error_type == MQTT_ERROR_TYPE_TCP_TRANSPORT) {
+        if (event->error_handle->error_type == MQTT_ERROR_TYPE_TCP_TRANSPORT)
+        {
             log_error_if_nonzero("reported from esp-tls", event->error_handle->esp_tls_last_esp_err);
             log_error_if_nonzero("reported from tls stack", event->error_handle->esp_tls_stack_err);
-            log_error_if_nonzero("captured as transport's socket errno",  event->error_handle->esp_transport_sock_errno);
+            log_error_if_nonzero("captured as transport's socket errno", event->error_handle->esp_transport_sock_errno);
             ESP_LOGI(TAG, "Last errno string (%s)", strerror(event->error_handle->esp_transport_sock_errno));
-
         }
         break;
     default:
@@ -76,15 +78,20 @@ void mqtt_app_start(void)
 #if CONFIG_BROKER_URL_FROM_STDIN
     char line[128];
 
-    if (strcmp(mqtt_cfg.broker.address.uri, "FROM_STDIN") == 0) {
+    if (strcmp(mqtt_cfg.broker.address.uri, "FROM_STDIN") == 0)
+    {
         int count = 0;
         printf("Please enter url of mqtt broker\n");
-        while (count < 128) {
+        while (count < 128)
+        {
             int c = fgetc(stdin);
-            if (c == '\n') {
+            if (c == '\n')
+            {
                 line[count] = '\0';
                 break;
-            } else if (c > 0 && c < 127) {
+            }
+            else if (c > 0 && c < 127)
+            {
                 line[count] = c;
                 ++count;
             }
@@ -92,7 +99,9 @@ void mqtt_app_start(void)
         }
         mqtt_cfg.broker.address.uri = line;
         printf("Broker url: %s\n", line);
-    } else {
+    }
+    else
+    {
         ESP_LOGE(TAG, "Configuration mismatch: wrong broker url");
         abort();
     }
@@ -104,12 +113,12 @@ void mqtt_app_start(void)
     esp_mqtt_client_start(client);
 }
 
-int mqtt_publish(const char* topic, const char* data)
+int mqtt_publish(const char *topic, const char *data)
 {
     return esp_mqtt_client_publish(client, topic, data, 0, 1, 0);
 }
 
-void mqtt_task(void* pvParam)
+void mqtt_task(void *pvParam)
 {
     uint8_t mac[6];
     esp_wifi_get_mac(WIFI_IF_STA, mac);
@@ -117,22 +126,22 @@ void mqtt_task(void* pvParam)
 
     mqtt_app_start();
 
-    measurement_args_t* args = (measurement_args_t*) pvParam; 
-    shd_mem_t* outbuff = (shd_mem_t*) create_outbuff(ALL_MEASUREMENTS);
-    
-    while(1)
+    measurement_args_t *args = (measurement_args_t *)pvParam;
+    shd_mem_t *outbuff = (shd_mem_t *)create_outbuff(ALL_MEASUREMENTS);
+
+    while (1)
     {
         shd_mem_read(args->m_shd_mem, ALL_MEASUREMENTS, outbuff);
         parse_and_send(outbuff, args);
 
-        vTaskDelay(4000 / portTICK_PERIOD_MS);
+        vTaskDelay(7000 / portTICK_PERIOD_MS);
     }
 }
 
-
-static void parse_and_send(shd_mem_t* shd_ptr, measurement_args_t* args)
+static void parse_and_send(shd_mem_t *shd_ptr, measurement_args_t *args)
 {
     char msg[150];
+    /*
     sprintf(msg, "temperature,%d,Light,1697879661431,%d", args->m_interface.sensor_ref, (int)shd_ptr->bme280_val.temperature_C);
     mqtt_publish(MQTT_TOPIC, msg);
     puts(msg);
@@ -142,13 +151,33 @@ static void parse_and_send(shd_mem_t* shd_ptr, measurement_args_t* args)
     puts(msg);
     sprintf(msg, "pressure,%d,Light,1697879661431,%d", args->m_interface.sensor_ref, (int)shd_ptr->bme280_val.pressure_hPa);
     mqtt_publish(MQTT_TOPIC, msg);
-    puts(msg);
-    //extern char* hostname;
-    //sprintf(msg, "{\"ID\":\"%s\",\"SENSOR\":\"%s\",\"DATA\":[{\"TEMP\":%.2f},{\"HUMID\":%.2f},{\"PRESS\":%.2f}]}", 
-    //macAddress, GENERATE_STRING(BME280), shd_ptr->bme280_val.temperature_C, shd_ptr->bme280_val.humidity, shd_ptr->bme280_val.pressure_hPa);
-    //sprintf(msg, "{\"ID\":\"%s\", \"SENSOR\":\"%s\", \"DATA\":[{\"LUX\":%u}]}", 
-    //macAddress, GENERATE_STRING(BH1750), shd_ptr->bh1750_val);
-    
+    puts(msg);*/
 
-         
+    //sprintf(msg, "{\"MAC\":\"%s\",\"type\":\"%s\",\"value\":\"%d\",\"timestamp\":\"%d\",\"status\":"\"%s\"}",
+    //        macAddress, "Temperature", shd_ptr->bme280_val.temperature_C, 123456, "OK");
+
+    sprintf(msg, "{\"MAC\":\"%s\",\"type\":\"%s\",\"value\":\"%d\",\"status\":\"%s\"}",
+            macAddress, "Temperature", (int)shd_ptr->bme280_val.temperature_C, "OK");
+    mqtt_publish(MQTT_TOPIC, msg);
+    puts(msg);
+
+    sprintf(msg, "{\"MAC\":\"%s\",\"type\":\"%s\",\"value\":\"%d\",\"status\":\"%s\"}",
+            macAddress, "Humidity", (int)shd_ptr->bme280_val.humidity, "OK");
+    mqtt_publish(MQTT_TOPIC, msg);
+    puts(msg);
+
+    sprintf(msg, "{\"MAC\":\"%s\",\"type\":\"%s\",\"value\":\"%d\",\"status\":\"%s\"}",
+            macAddress, "Pressure", (int)shd_ptr->bme280_val.pressure_hPa, "OK");
+    mqtt_publish(MQTT_TOPIC, msg);
+    puts(msg);
+
+    // extern char* hostname;
+    // sprintf(msg, "{\"ID\":\"%s\",\"SENSOR\":\"%s\",\"DATA\":[{\"TEMP\":%.2f},{\"HUMID\":%.2f},{\"PRESS\":%.2f}]}",
+    // macAddress, GENERATE_STRING(BME280), shd_ptr->bme280_val.temperature_C, shd_ptr->bme280_val.humidity, shd_ptr->bme280_val.pressure_hPa);
+    // sprintf(msg, "{\"ID\":\"%s\", \"SENSOR\":\"%s\", \"DATA\":[{\"LUX\":%u}]}",
+    // macAddress, GENERATE_STRING(BH1750), shd_ptr->bh1750_val);
+
+    // console.log(new Date().toISOString());
+    // const data = `{"MAC":"00:1A:2B:3C:4D:5E","type":"Temperature","value":${Math.floor(Math.random() * 41)},"timestamp":${Date.now()},"status":"OK"}`;
+    // client.publish(MQTT_TOPIC_TEMPERATURE, data);
 }
