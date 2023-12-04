@@ -126,10 +126,19 @@ exports.deleteMeasurements = async (req, res, next) => {
 exports.getMeasurementsByChannelAndTimeRange = async (req, res, next) => {
     try {
         const { channel, startTime, endTime } = req.query;
+
+        // Pobierz pomiary z konkretnego kanału i zpopuluj dane urządzenia i kanału
         const measurements = await Measurement.find()
-            .populate('channel')
+            .populate({
+                path: 'channel',
+                match: { type: channel } // Filtruj po channel.type
+            })
             .populate('device')
             .exec();
+
+        // Przefiltruj pomiary na podstawie kanału i zakresu czasowego
+        //const filteredMeasurements = measurements;
+        
         const filteredMeasurements = measurements
             .filter(measurement =>
                 measurement.channel && 

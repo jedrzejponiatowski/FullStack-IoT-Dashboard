@@ -84,7 +84,6 @@ const Chart = ({ }) => {
 
             if (readyToPlot) {
 
-                setYAxisBounds(String(selectedChannel));
                 const measurementsResponse = await axios.get('/api/measurements/filtered', {
                     params: {
                         channel: String(selectedChannel),
@@ -142,11 +141,26 @@ const Chart = ({ }) => {
                         return null;
                     }
 
+                    const deviceMeasurements = filteredMeasurementsData
+                        .filter((measurement) => measurement.device.MAC === deviceMAC)
+                    //.map((measurement) => measurement.value)
+
+                    const tempMeasurements = deviceMeasurements
+                        .filter((value) => value !== -99);
+
+                    if (tempMeasurements.length > 0) {
+                        const minValue = Math.min(...deviceMeasurements);
+                        const maxValue = Math.max(...deviceMeasurements);
+
+                        // Aktualizuj min i max wartości na osi Y
+                        setMinYValue(Math.min(minYValue, minValue));
+                        setMaxYValue(Math.max(maxYValue, maxValue));
+                    }
 
                     return {
                         deviceMAC,
                         deviceName: deviceInfo.device.name, // Dodaj deviceName
-                        data: filteredMeasurementsData.map((measurement) => (
+                        data: deviceMeasurements.map((measurement) => (
                             measurement.value !== -99 ? measurement.value : null
                         )),
                         color: chartColors[index],
@@ -212,7 +226,7 @@ const Chart = ({ }) => {
         const deviceMeasurements = filteredMeasurements
             .filter((measurement) => measurement.device.MAC === selectedDevice)
             .map((measurement) => measurement.value);
-
+    
         const displayedMeasurements = deviceMeasurements.filter((value) => value !== -99);
         return displayedMeasurements.length;
     };
@@ -232,33 +246,6 @@ const Chart = ({ }) => {
             console.error('Error fetching data:', error.message);
         }
     };
-
-    const setYAxisBounds = (selectedChannel) => {
-        switch (selectedChannel) {
-            case 'Temperature':
-                setMinYValue(0);
-                setMaxYValue(50);
-                break;
-            case 'Humidity':
-                setMinYValue(0);
-                setMaxYValue(100);
-                break;
-            case 'Pressure':
-                setMinYValue(950);
-                setMaxYValue(1050);
-                break;
-            case 'Luminous':
-                setMinYValue(0);
-                setMaxYValue(1000);
-                break;
-            default:
-                // Domyślne wartości, gdy nie pasuje do żadnego przypadku
-                setMinYValue(0);
-                setMaxYValue(10);
-                break;
-        }
-    };
-
 
     return (
         <Grid container spacing={4} style={{ height: '100vh', overflow: 'hidden' }}>
@@ -287,7 +274,7 @@ const Chart = ({ }) => {
                             margin={{ top: 20, right: 10, bottom: 10, left: 0 }}
                         >
                             <CartesianGrid stroke="#bbb" strokeDasharray="3 3" opacity={0.5} />
-                            <XAxis dataKey="time" stroke={theme.palette.text.secondary} tick={{ fontSize: 16 }} interval={Math.floor(displayedMeasurementsCount / 7)} />
+                            <XAxis dataKey="time" stroke={theme.palette.text.secondary} tick={{ fontSize: 16 }} interval={Math.floor(displayedMeasurementsCount/7)} />
                             <YAxis stroke={theme.palette.text.secondary} tick={{ fontSize: 16 }} tickCount={10} domain={[minYValue, maxYValue]} />
                             <Legend verticalAlign="top" height={36} />
                             <Tooltip content={<CustomTooltip />} />

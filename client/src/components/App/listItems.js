@@ -15,11 +15,14 @@ import ShowChartIcon from '@mui/icons-material/ShowChart';
 
 const ListItems = ({ handleTabChange }) => {
   const items = [
-    { icon: <ShowChartIcon sx={{ color: '#4e342e', fontSize: '30px' }} />, primary: 'Report' },
+    { icon: <ShowChartIcon sx={{ color: '#4e342e', fontSize: '30px' }} />, primary: 'Raport' },
     { icon: <ConfigIcon sx={{ color: '#6d4c41', fontSize: '30px' }} />, primary: 'Config' },
     { icon: <ArchiveIcon sx={{ color: '#8d6e63', fontSize: '30px' }} />, primary: 'Archive' },
   ];
 
+  const configAndArchive = [
+
+  ];
 
   return (
     <React.Fragment>
