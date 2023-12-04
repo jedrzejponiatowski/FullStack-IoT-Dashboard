@@ -83,7 +83,7 @@ const Chart = ({ }) => {
             console.log(selectedDevices);
 
             if (readyToPlot) {
-
+                setYAxisBounds(String(selectedChannel));
                 const measurementsResponse = await axios.get('/api/measurements/filtered', {
                     params: {
                         channel: String(selectedChannel),
@@ -144,18 +144,6 @@ const Chart = ({ }) => {
                     const deviceMeasurements = filteredMeasurementsData
                         .filter((measurement) => measurement.device.MAC === deviceMAC)
                     //.map((measurement) => measurement.value)
-
-                    const tempMeasurements = deviceMeasurements
-                        .filter((value) => value !== -99);
-
-                    if (tempMeasurements.length > 0) {
-                        const minValue = Math.min(...deviceMeasurements);
-                        const maxValue = Math.max(...deviceMeasurements);
-
-                        // Aktualizuj min i max wartości na osi Y
-                        setMinYValue(Math.min(minYValue, minValue));
-                        setMaxYValue(Math.max(maxYValue, maxValue));
-                    }
 
                     return {
                         deviceMAC,
@@ -244,6 +232,33 @@ const Chart = ({ }) => {
             console.log('Data fetched successfully!');
         } catch (error) {
             console.error('Error fetching data:', error.message);
+        }
+    };
+
+
+    const setYAxisBounds = (selectedChannel) => {
+        switch (selectedChannel) {
+            case 'Temperature':
+                setMinYValue(0);
+                setMaxYValue(50);
+                break;
+            case 'Humidity':
+                setMinYValue(0);
+                setMaxYValue(100);
+                break;
+            case 'Pressure':
+                setMinYValue(950);
+                setMaxYValue(1050);
+                break;
+            case 'Luminous':
+                setMinYValue(0);
+                setMaxYValue(1000);
+                break;
+            default:
+                // Domyślne wartości, gdy nie pasuje do żadnego przypadku
+                setMinYValue(0);
+                setMaxYValue(10);
+                break;
         }
     };
 

@@ -82,7 +82,7 @@ export default function Dashboard() {
 
     const renderTabContent = () => {
         switch (selectedTab) {
-            case 'Raport':
+            case 'Report':
                 return (
                     <React.Fragment>
                         <Chart />
