@@ -82,7 +82,7 @@ export default function Dashboard() {
 
     const renderTabContent = () => {
         switch (selectedTab) {
-            case 'Raport':
+            case 'Report':
                 return (
                     <React.Fragment>
                         <Chart />
@@ -105,9 +105,6 @@ export default function Dashboard() {
                     <React.Fragment>
                         <Typography variant="h3" gutterBottom component="div">
                             Welcome to the Dashboard
-                        </Typography>
-                        <Typography variant="body1" paragraph>
-                            Customize this section with your content.
                         </Typography>
                         
                     </React.Fragment>
@@ -146,11 +143,6 @@ export default function Dashboard() {
                         >
                             Dashboard
                         </Typography>
-                        <IconButton color="inherit">
-                            <Badge badgeContent={4} color="secondary">
-                                <NotificationsIcon />
-                            </Badge>
-                        </IconButton>
                     </Toolbar>
                 </AppBar>
                 <Drawer variant="permanent" open={open}>
